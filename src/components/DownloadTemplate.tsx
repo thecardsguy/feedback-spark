@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import {
   Download,
   Loader2,
@@ -17,7 +18,15 @@ import {
   Folder,
   File,
   ExternalLink,
+  MessageCircle,
+  X,
+  Target,
+  Bug,
+  Lightbulb,
+  Palette,
+  Send,
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // Template file structure preview
 const FILE_STRUCTURE = [
@@ -133,23 +142,37 @@ export function DownloadTemplate() {
         </Badge>
       </div>
 
-      {/* File Preview */}
-      <div className="mb-6 p-4 rounded-xl bg-muted/30 border border-border max-h-48 overflow-y-auto">
-        <p className="text-sm font-medium text-foreground mb-3">Included files:</p>
-        <div className="space-y-1.5">
-          {FILE_STRUCTURE.map((item) => (
-            <div key={item.name} className="flex items-center gap-3 text-sm">
-              {item.type === 'folder' ? (
-                <Folder className="w-4 h-4 text-blue-500 shrink-0" />
-              ) : (
-                <File className="w-4 h-4 text-muted-foreground shrink-0" />
-              )}
-              <span className="font-mono text-xs text-foreground truncate">{item.name}</span>
-              <span className="text-muted-foreground text-xs ml-auto shrink-0">{item.desc}</span>
+      {/* Tabs for Preview and Files */}
+      <Tabs defaultValue="preview" className="mb-6">
+        <TabsList className="w-full mb-4">
+          <TabsTrigger value="preview" className="flex-1">Live Preview</TabsTrigger>
+          <TabsTrigger value="files" className="flex-1">Files List</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="preview">
+          <WidgetPreview />
+        </TabsContent>
+        
+        <TabsContent value="files">
+          {/* File Preview */}
+          <div className="p-4 rounded-xl bg-muted/30 border border-border max-h-48 overflow-y-auto">
+            <p className="text-sm font-medium text-foreground mb-3">Included files:</p>
+            <div className="space-y-1.5">
+              {FILE_STRUCTURE.map((item) => (
+                <div key={item.name} className="flex items-center gap-3 text-sm">
+                  {item.type === 'folder' ? (
+                    <Folder className="w-4 h-4 text-blue-500 shrink-0" />
+                  ) : (
+                    <File className="w-4 h-4 text-muted-foreground shrink-0" />
+                  )}
+                  <span className="font-mono text-xs text-foreground truncate">{item.name}</span>
+                  <span className="text-muted-foreground text-xs ml-auto shrink-0">{item.desc}</span>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
+        </TabsContent>
+      </Tabs>
 
       {/* Download Button */}
       <Button
@@ -189,6 +212,167 @@ export function DownloadTemplate() {
         </a>
       </div>
     </Card>
+  );
+}
+
+// Interactive Widget Preview Component
+function WidgetPreview() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [category, setCategory] = useState<string>('bug');
+  const [severity, setSeverity] = useState<string>('medium');
+  const [text, setText] = useState('');
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  const categories = [
+    { value: 'bug', label: 'Bug', emoji: '🐛', icon: Bug },
+    { value: 'feature', label: 'Feature', emoji: '✨', icon: Lightbulb },
+    { value: 'ui_ux', label: 'Design', emoji: '🎨', icon: Palette },
+  ];
+
+  const severities = [
+    { value: 'low', label: 'Minor', color: 'bg-green-500' },
+    { value: 'medium', label: 'Medium', color: 'bg-yellow-500' },
+    { value: 'high', label: 'Major', color: 'bg-orange-500' },
+  ];
+
+  const handleSubmit = () => {
+    setShowSuccess(true);
+    setTimeout(() => {
+      setShowSuccess(false);
+      setIsOpen(false);
+      setText('');
+    }, 1500);
+  };
+
+  return (
+    <div className="relative h-64 bg-gradient-to-br from-muted/40 via-muted/20 to-muted/40 rounded-xl border border-border overflow-hidden">
+      {/* Mock app background */}
+      <div className="absolute inset-0 p-4">
+        <div className="h-3 w-24 bg-muted-foreground/20 rounded mb-2" />
+        <div className="h-2 w-full bg-muted-foreground/10 rounded mb-1" />
+        <div className="h-2 w-3/4 bg-muted-foreground/10 rounded mb-1" />
+        <div className="h-2 w-5/6 bg-muted-foreground/10 rounded mb-4" />
+        <div className="flex gap-2 mb-4">
+          <div className="h-16 w-16 bg-muted-foreground/15 rounded-lg" />
+          <div className="flex-1">
+            <div className="h-2 w-1/2 bg-muted-foreground/15 rounded mb-1" />
+            <div className="h-2 w-3/4 bg-muted-foreground/10 rounded mb-1" />
+            <div className="h-2 w-2/3 bg-muted-foreground/10 rounded" />
+          </div>
+        </div>
+        <div className="h-8 w-24 bg-primary/20 rounded-lg" />
+      </div>
+
+      {/* Floating feedback button */}
+      <motion.button
+        onClick={() => setIsOpen(!isOpen)}
+        className="absolute bottom-4 right-4 w-12 h-12 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center z-20"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        {isOpen ? <X className="w-5 h-5" /> : <MessageCircle className="w-5 h-5" />}
+      </motion.button>
+
+      {/* Feedback form popup */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 10 }}
+            className="absolute bottom-20 right-4 w-64 bg-card border border-border rounded-xl shadow-xl overflow-hidden z-10"
+          >
+            {showSuccess ? (
+              <div className="p-6 text-center">
+                <div className="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto mb-3">
+                  <Check className="w-6 h-6 text-green-500" />
+                </div>
+                <p className="text-sm font-semibold text-green-500">Thank you!</p>
+                <p className="text-xs text-muted-foreground">Feedback submitted</p>
+              </div>
+            ) : (
+              <div className="p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-semibold text-sm">Send Feedback</h4>
+                  <button onClick={() => setIsOpen(false)} className="text-muted-foreground hover:text-foreground">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Category buttons */}
+                <div className="flex gap-1">
+                  {categories.map((cat) => (
+                    <button
+                      key={cat.value}
+                      onClick={() => setCategory(cat.value)}
+                      className={`flex-1 py-1.5 rounded-md text-xs transition-colors ${
+                        category === cat.value
+                          ? 'bg-primary/10 text-primary border border-primary/30'
+                          : 'bg-muted/50 text-muted-foreground border border-transparent hover:bg-muted'
+                      }`}
+                    >
+                      {cat.emoji}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Severity buttons */}
+                <div className="flex gap-1">
+                  {severities.map((sev) => (
+                    <button
+                      key={sev.value}
+                      onClick={() => setSeverity(sev.value)}
+                      className={`flex-1 py-1 rounded text-xs transition-colors ${
+                        severity === sev.value
+                          ? 'bg-muted text-foreground font-medium'
+                          : 'text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      <div className="flex items-center justify-center gap-1">
+                        <div className={`w-1.5 h-1.5 rounded-full ${sev.color}`} />
+                        {sev.label}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Textarea */}
+                <textarea
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                  placeholder="Describe your feedback..."
+                  className="w-full h-14 px-2.5 py-2 text-xs bg-muted/30 border border-border rounded-lg resize-none focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+
+                {/* Element picker hint */}
+                <button className="w-full py-1.5 border border-dashed border-border rounded-lg text-xs text-muted-foreground hover:text-foreground hover:border-primary/50 transition-colors flex items-center justify-center gap-1.5">
+                  <Target className="w-3 h-3" />
+                  Target element
+                </button>
+
+                {/* Submit button */}
+                <Button
+                  onClick={handleSubmit}
+                  disabled={!text.trim()}
+                  className="w-full h-8 text-xs"
+                  size="sm"
+                >
+                  <Send className="w-3 h-3 mr-1.5" />
+                  Submit
+                </Button>
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Label */}
+      <div className="absolute top-3 left-3">
+        <Badge variant="secondary" className="text-[10px] bg-background/80 backdrop-blur">
+          Interactive Preview
+        </Badge>
+      </div>
+    </div>
   );
 }
 
