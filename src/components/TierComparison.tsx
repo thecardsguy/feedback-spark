@@ -1,6 +1,6 @@
 /**
  * Tier Comparison Table
- * 
+ *
  * Visual comparison of Basic, Standard, and Pro tiers with checkmarks.
  * Includes export functionality for image and PDF downloads.
  */
