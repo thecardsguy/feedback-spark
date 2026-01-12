@@ -329,7 +329,7 @@ export function DownloadTemplate() {
         <Button
           variant="outline"
           className="w-full gap-2"
-          onClick={() => window.open('https://github.com/lovable-dev/feedback-widget-template', '_blank')}
+          onClick={() => window.open('https://github.com/thecardsguy/feedback-chatbot', '_blank')}
         >
           View on GitHub
           <ExternalLink className="w-4 h-4" />
