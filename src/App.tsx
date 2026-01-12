@@ -9,6 +9,7 @@ import Admin from "./pages/Admin";
 import Setup from "./pages/Setup";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import ClientDemo from "./pages/ClientDemo";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/demo" element={<ClientDemo />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/setup" element={<Setup />} />
             <Route path="/login" element={<Login />} />
