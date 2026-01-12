@@ -1,61 +1,63 @@
 import { useState } from 'react';
-import { FeedbackButton } from '@/feedback';
-import { STANDARD_PRESET } from '@/feedback/config/feedback.config';
-import { MessageSquare, Zap, Shield, Sparkles, ArrowRight, MousePointer2, CreditCard, Clock, Bot, Play, CheckCircle, Loader2, Settings } from 'lucide-react';
+import { FeedbackWidget } from '@/feedback';
+import { MessageSquare, Zap, Shield, Sparkles, ArrowRight, MousePointer2, CreditCard, Clock, Bot, Copy, Check, Code, Brain } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { OnboardingModal } from '@/components/OnboardingModal';
+import { Card } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import AccuracyTest from '@/components/AccuracyTest';
 
 const Index = () => {
-  const feedbackConfig = {
-    ...STANDARD_PRESET,
-    appName: 'Feedback Chatbot Demo',
-    position: 'bottom-right' as const,
+  const [copied, setCopied] = useState<string | null>(null);
+
+  const copyCode = (code: string, id: string) => {
+    navigator.clipboard.writeText(code);
+    setCopied(id);
+    setTimeout(() => setCopied(null), 2000);
   };
 
-  const [isDemoSubmitting, setIsDemoSubmitting] = useState(false);
-  const [demoResult, setDemoResult] = useState<{ success: boolean; message: string } | null>(null);
+  const quickStartCode = `// 1. Import the widget
+import { FeedbackWidget } from '@/feedback';
 
-  const handleDemoSubmit = async () => {
-    setIsDemoSubmitting(true);
-    setDemoResult(null);
-    
-    try {
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/submit-feedback-ai`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        },
-        body: JSON.stringify({
-          raw_text: 'Demo: The hero section could use better contrast on mobile devices.',
-          category: 'ui_ux',
-          severity: 'medium',
-          page_url: window.location.href,
-          demo_mode: true, // Use demo mode - no credits consumed
-        }),
-      });
-      const data = await response.json();
-      if (data.success || data.id) {
-        setDemoResult({
-          success: true,
-          message: 'Demo submission successful! Check the admin dashboard to see it.',
-        });
-      } else {
-        setDemoResult({
-          success: false,
-          message: data.error || 'Demo submission failed',
-        });
-      }
-    } catch (error) {
-      setDemoResult({
-        success: false,
-        message: 'Failed to connect. Check your setup.',
-      });
-    } finally {
-      setIsDemoSubmitting(false);
-    }
-  };
+// 2. Add it to your app (that's it!)
+function App() {
+  return (
+    <div>
+      {/* Your app content */}
+      <FeedbackWidget />
+    </div>
+  );
+}`;
+
+  const withOptionsCode = `// With customization
+<FeedbackWidget
+  appName="MyApp"
+  position="bottom-left"
+  enableAI={true}
+  showElementPicker={true}
+  buttonColor="#3b82f6"
+  onSubmit={(id) => console.log('Submitted:', id)}
+/>`;
+
+  const advancedCode = `// Full control with config
+import { FeedbackButton, createConfig } from '@/feedback';
+
+const config = createConfig({
+  appName: 'MyApp',
+  position: 'bottom-right',
+  features: {
+    elementPicker: true,
+    categories: true,
+    severityLevels: true,
+  },
+  ai: {
+    enabled: true,
+    summarize: true,
+    categorize: true,
+  },
+}, 'pro');
+
+<FeedbackButton config={config} />`;
 
   return (
     <div className="min-h-screen bg-background">
@@ -65,17 +67,13 @@ const Index = () => {
         <div className="relative max-w-6xl mx-auto px-6 py-24 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary mb-6">
             <Sparkles className="w-4 h-4" />
-            <span className="text-sm font-medium">AI-Powered Template</span>
+            <span className="text-sm font-medium">Drop-in Template</span>
           </div>
           <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-4">
-            Feedback Chatbot
+            Feedback Widget
           </h1>
-          <p className="text-lg text-muted-foreground max-w-3xl mx-auto mb-2">
-            A template for the AI Feedback Chatbot system
-          </p>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-            Drop this into any React + Supabase project to collect, organize, and act on user feedback. 
-            AI interprets issues and generates prompts you can paste directly into Lovable.
+            One component. Zero configuration. Add AI-powered feedback collection to your app in under a minute.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Button size="lg" asChild>
@@ -85,290 +83,258 @@ const Index = () => {
               </Link>
             </Button>
             <Button size="lg" variant="outline" asChild>
-              <Link to="/setup">
-                <Settings className="w-4 h-4 mr-2" />
-                Setup Wizard
+              <Link to="/demo">
+                Try Live Demo
               </Link>
             </Button>
           </div>
         </div>
       </header>
 
-      {/* Interactive Demo Section - NEW */}
-      <section className="bg-gradient-to-b from-primary/5 to-background border-y border-border">
-        <div className="max-w-6xl mx-auto px-6 py-16">
-          <div className="text-center mb-8">
+      {/* Quick Start - The Main Focus */}
+      <section className="bg-card border-y border-border">
+        <div className="max-w-4xl mx-auto px-6 py-16">
+          <div className="text-center mb-10">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/10 text-green-600 mb-4">
-              <Play className="w-4 h-4" />
-              <span className="text-sm font-medium">Interactive Demo</span>
+              <Code className="w-4 h-4" />
+              <span className="text-sm font-medium">3 Lines of Code</span>
             </div>
             <h2 className="text-3xl font-bold text-foreground mb-4">
-              Try It Without Using Credits
+              The Simplest Integration Ever
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Test the full AI-powered feedback flow in demo mode. 
-              No API credits are consumed - perfect for exploring the template.
+            <p className="text-lg text-muted-foreground">
+              Import it. Use it. Done. No configuration required.
             </p>
           </div>
 
-          <div className="max-w-md mx-auto">
-            <div className="bg-card border border-border rounded-2xl p-6 text-center">
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                <Bot className="w-8 h-8 text-primary" />
-              </div>
-              <h3 className="text-lg font-semibold text-card-foreground mb-2">
-                Demo AI Submission
-              </h3>
-              <p className="text-sm text-muted-foreground mb-6">
-                Submits a sample feedback with AI-generated summary, category, and developer question (using mock responses).
-              </p>
-              
-              <Button 
-                onClick={handleDemoSubmit}
-                disabled={isDemoSubmitting}
-                className="w-full mb-4"
-                size="lg"
-              >
-                {isDemoSubmitting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Submitting Demo...
-                  </>
-                ) : (
-                  <>
-                    <Play className="w-4 h-4 mr-2" />
-                    Try Demo Submission
-                  </>
-                )}
-              </Button>
+          <Tabs defaultValue="quick" className="w-full">
+            <TabsList className="grid w-full grid-cols-3 mb-6">
+              <TabsTrigger value="quick">Quick Start</TabsTrigger>
+              <TabsTrigger value="options">With Options</TabsTrigger>
+              <TabsTrigger value="advanced">Advanced</TabsTrigger>
+            </TabsList>
 
-              {demoResult && (
-                <div className={`p-4 rounded-lg ${demoResult.success ? 'bg-green-500/10 border border-green-500/20' : 'bg-destructive/10 border border-destructive/20'}`}>
-                  <div className="flex items-center justify-center gap-2">
-                    {demoResult.success ? (
-                      <CheckCircle className="w-5 h-5 text-green-500" />
-                    ) : null}
-                    <p className={`font-medium ${demoResult.success ? 'text-green-600 dark:text-green-400' : 'text-destructive'}`}>
-                      {demoResult.message}
-                    </p>
+            <TabsContent value="quick">
+              <Card className="overflow-hidden bg-muted/30">
+                <div className="flex items-center justify-between px-4 py-3 bg-muted/50 border-b border-border">
+                  <div className="flex items-center gap-2">
+                    <Code className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm font-medium text-foreground">App.tsx</span>
                   </div>
-                  {demoResult.success && (
-                    <Link to="/admin" className="text-sm text-green-600 dark:text-green-400 hover:underline mt-2 inline-block">
-                      View in Admin Dashboard →
-                    </Link>
-                  )}
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => copyCode(quickStartCode, 'quick')}
+                    className="gap-2"
+                  >
+                    {copied === 'quick' ? (
+                      <>
+                        <Check className="w-4 h-4 text-green-500" />
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-4 h-4" />
+                        Copy
+                      </>
+                    )}
+                  </Button>
                 </div>
-              )}
+                <pre className="p-6 overflow-x-auto text-sm">
+                  <code className="text-foreground">{quickStartCode}</code>
+                </pre>
+              </Card>
+            </TabsContent>
 
-              <p className="text-xs text-muted-foreground mt-4">
-                💡 Demo mode uses pre-generated AI responses. Connect Lovable Cloud for real AI.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+            <TabsContent value="options">
+              <Card className="overflow-hidden bg-muted/30">
+                <div className="flex items-center justify-between px-4 py-3 bg-muted/50 border-b border-border">
+                  <div className="flex items-center gap-2">
+                    <Code className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm font-medium text-foreground">With customization</span>
+                  </div>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => copyCode(withOptionsCode, 'options')}
+                    className="gap-2"
+                  >
+                    {copied === 'options' ? (
+                      <>
+                        <Check className="w-4 h-4 text-green-500" />
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-4 h-4" />
+                        Copy
+                      </>
+                    )}
+                  </Button>
+                </div>
+                <pre className="p-6 overflow-x-auto text-sm">
+                  <code className="text-foreground">{withOptionsCode}</code>
+                </pre>
+              </Card>
+            </TabsContent>
 
-      {/* Perfect for Lovable Users Section */}
-      <section className="bg-primary/5 border-y border-border">
-        <div className="max-w-6xl mx-auto px-6 py-20">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary mb-4">
-              <Bot className="w-4 h-4" />
-              <span className="text-sm font-medium">Built for Lovable</span>
-            </div>
-            <h2 className="text-3xl font-bold text-foreground mb-4">
-              Your Personal Issue Tracker for AI Development
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-              Stop losing track of bugs and improvements. Capture issues as you see them, 
-              then batch-prompt Lovable when you're ready to fix everything at once.
+            <TabsContent value="advanced">
+              <Card className="overflow-hidden bg-muted/30">
+                <div className="flex items-center justify-between px-4 py-3 bg-muted/50 border-b border-border">
+                  <div className="flex items-center gap-2">
+                    <Code className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm font-medium text-foreground">Full configuration</span>
+                  </div>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => copyCode(advancedCode, 'advanced')}
+                    className="gap-2"
+                  >
+                    {copied === 'advanced' ? (
+                      <>
+                        <Check className="w-4 h-4 text-green-500" />
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-4 h-4" />
+                        Copy
+                      </>
+                    )}
+                  </Button>
+                </div>
+                <pre className="p-6 overflow-x-auto text-sm">
+                  <code className="text-foreground">{advancedCode}</code>
+                </pre>
+              </Card>
+            </TabsContent>
+          </Tabs>
+
+          <div className="mt-6 text-center text-sm text-muted-foreground">
+            <p>
+              Copy the <code className="px-1.5 py-0.5 rounded bg-muted text-foreground">src/feedback</code> folder 
+              to your project. That's the entire template.
             </p>
           </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Element Picker */}
-            <div className="p-6 rounded-2xl bg-card border border-border">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
-                <MousePointer2 className="w-6 h-6 text-primary" />
-              </div>
-              <h3 className="text-lg font-semibold text-card-foreground mb-2">Pinpoint Accuracy</h3>
-              <p className="text-sm text-muted-foreground">
-                Click anywhere on your page to select the exact element with an issue. 
-                The captured context helps Lovable understand precisely what needs fixing.
-              </p>
-            </div>
-
-            {/* Save Credits */}
-            <div className="p-6 rounded-2xl bg-card border border-border">
-              <div className="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center mb-4">
-                <CreditCard className="w-6 h-6 text-green-600" />
-              </div>
-              <h3 className="text-lg font-semibold text-card-foreground mb-2">Save Credits</h3>
-              <p className="text-sm text-muted-foreground">
-                No more wasted prompts from vague descriptions. Precise element targeting 
-                means fewer back-and-forth corrections and more accurate first-try fixes.
-              </p>
-            </div>
-
-            {/* Queue for Later */}
-            <div className="p-6 rounded-2xl bg-card border border-border">
-              <div className="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center mb-4">
-                <Clock className="w-6 h-6 text-orange-600" />
-              </div>
-              <h3 className="text-lg font-semibold text-card-foreground mb-2">Queue Issues</h3>
-              <p className="text-sm text-muted-foreground">
-                Spot an issue? Log it instantly and keep browsing. All your feedback is saved 
-                so you can batch-prompt fixes when you have dedicated dev time.
-              </p>
-            </div>
-
-            {/* AI Interpretation */}
-            <div className="p-6 rounded-2xl bg-card border border-border">
-              <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center mb-4">
-                <Bot className="w-6 h-6 text-purple-600" />
-              </div>
-              <h3 className="text-lg font-semibold text-card-foreground mb-2">AI-Ready Prompts</h3>
-              <p className="text-sm text-muted-foreground">
-                Pro tier AI interprets your feedback and generates clear, actionable prompts 
-                you can paste directly into Lovable for immediate implementation.
-              </p>
-            </div>
-          </div>
-
-
-          {/* Workflow Explanation */}
-          <div className="mt-12 p-8 rounded-2xl bg-card border border-border">
-            <h3 className="text-xl font-semibold text-card-foreground mb-4 text-center">
-              The Feedback Chatbot Workflow
-            </h3>
-            <div className="grid md:grid-cols-4 gap-6 text-center">
-              <div>
-                <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-3 font-bold">1</div>
-                <p className="text-sm text-muted-foreground">
-                  <strong className="text-foreground">See an issue</strong><br />
-                  While using your app, notice a bug or something to improve
-                </p>
-              </div>
-              <div>
-                <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-3 font-bold">2</div>
-                <p className="text-sm text-muted-foreground">
-                  <strong className="text-foreground">Click & describe</strong><br />
-                  Select the element, describe the issue, and submit
-                </p>
-              </div>
-              <div>
-                <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-3 font-bold">3</div>
-                <p className="text-sm text-muted-foreground">
-                  <strong className="text-foreground">Collect & organize</strong><br />
-                  Issues are saved with full context in your admin dashboard
-                </p>
-              </div>
-              <div>
-                <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-3 font-bold">4</div>
-                <p className="text-sm text-muted-foreground">
-                  <strong className="text-foreground">Batch prompt</strong><br />
-                  When ready, copy the AI-generated prompts to Lovable and fix everything
-                </p>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* AI Accuracy Testing Section */}
+      <section className="bg-gradient-to-b from-background to-primary/5 border-b border-border">
+        <div className="max-w-6xl mx-auto px-6 py-16">
+          <AccuracyTest />
+        </div>
+      </section>
+
+      {/* Features Grid */}
       <section className="max-w-6xl mx-auto px-6 py-20">
-        <h2 className="text-3xl font-bold text-center text-foreground mb-12">
-          Three Tiers, One Template
-        </h2>
-        <div className="grid md:grid-cols-3 gap-8">
-          {/* Basic Tier */}
-          <div className="p-6 rounded-2xl border border-border bg-card hover:shadow-lg transition-shadow">
-            <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center mb-4">
-              <MessageSquare className="w-6 h-6 text-muted-foreground" />
-            </div>
-            <h3 className="text-xl font-semibold text-card-foreground mb-2">Basic</h3>
-            <p className="text-muted-foreground mb-4">
-              Simple feedback collection with customizable categories and severity levels.
-            </p>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>✓ Floating feedback button</li>
-              <li>✓ Category selection</li>
-              <li>✓ Severity levels</li>
-              <li>✓ Auto-capture page context</li>
-            </ul>
-          </div>
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold text-foreground mb-4">
+            Why This Template?
+          </h2>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Built for developers who want to ship fast without sacrificing quality.
+          </p>
+        </div>
 
-          {/* Standard Tier */}
-          <div className="p-6 rounded-2xl border-2 border-primary bg-card hover:shadow-lg transition-shadow relative">
-            <div className="absolute -top-3 left-6 px-3 py-1 bg-primary text-primary-foreground text-xs font-medium rounded-full">
-              Popular
-            </div>
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card className="p-6 bg-card/60">
             <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
-              <Zap className="w-6 h-6 text-primary" />
+              <MousePointer2 className="w-6 h-6 text-primary" />
             </div>
-            <h3 className="text-xl font-semibold text-card-foreground mb-2">Standard</h3>
-            <p className="text-muted-foreground mb-4">
-              Everything in Basic plus an admin dashboard to manage feedback.
+            <h3 className="text-lg font-semibold text-card-foreground mb-2">Element Targeting</h3>
+            <p className="text-sm text-muted-foreground">
+              Users can click any element to highlight exactly what they're reporting.
             </p>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>✓ Admin dashboard</li>
-              <li>✓ Status management</li>
-              <li>✓ Feedback statistics</li>
-              <li>✓ Search & filtering</li>
-            </ul>
-          </div>
+          </Card>
 
-          {/* Pro Tier */}
-          <div className="p-6 rounded-2xl border border-border bg-card hover:shadow-lg transition-shadow">
-            <div className="w-12 h-12 rounded-xl bg-accent flex items-center justify-center mb-4">
-              <Shield className="w-6 h-6 text-accent-foreground" />
+          <Card className="p-6 bg-card/60">
+            <div className="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center mb-4">
+              <CreditCard className="w-6 h-6 text-green-600" />
             </div>
-            <h3 className="text-xl font-semibold text-card-foreground mb-2">Pro</h3>
-            <p className="text-muted-foreground mb-4">
-              AI-powered insights with automatic categorization and summaries.
+            <h3 className="text-lg font-semibold text-card-foreground mb-2">Save Prompts</h3>
+            <p className="text-sm text-muted-foreground">
+              Precise feedback = fewer wasted AI prompts when fixing issues.
             </p>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>✓ AI categorization</li>
-              <li>✓ Auto-generated summaries</li>
-              <li>✓ Developer questions</li>
-              <li>✓ Sentiment analysis</li>
-            </ul>
-          </div>
+          </Card>
+
+          <Card className="p-6 bg-card/60">
+            <div className="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center mb-4">
+              <Clock className="w-6 h-6 text-orange-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-card-foreground mb-2">Batch Issues</h3>
+            <p className="text-sm text-muted-foreground">
+              Queue issues as you find them, fix them all at once later.
+            </p>
+          </Card>
+
+          <Card className="p-6 bg-card/60">
+            <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center mb-4">
+              <Brain className="w-6 h-6 text-purple-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-card-foreground mb-2">AI Analysis</h3>
+            <p className="text-sm text-muted-foreground">
+              Auto-categorize, summarize, and generate dev prompts.
+            </p>
+          </Card>
         </div>
       </section>
 
-      {/* Demo Content Section */}
-      <section className="max-w-6xl mx-auto px-6 py-20 border-t border-border">
-        <h2 className="text-3xl font-bold text-center text-foreground mb-4">
-          Try It Now
-        </h2>
-        <p className="text-center text-muted-foreground mb-12 max-w-xl mx-auto">
-          Click the feedback button in the bottom-right corner to submit feedback. 
-          Then visit the admin dashboard to see it appear.
-        </p>
-        
-        <div className="grid md:grid-cols-2 gap-8">
-          <div className="p-8 rounded-2xl bg-muted/50">
-            <h3 className="text-lg font-semibold text-foreground mb-4">Sample Content Area</h3>
-            <p className="text-muted-foreground mb-4">
-              This is a sample content area. Users can submit feedback about any element on the page. 
-              The widget automatically captures the current page URL and device information.
-            </p>
-            <div className="flex gap-2">
-              <span className="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">React</span>
-              <span className="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">TypeScript</span>
-              <span className="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Supabase</span>
-            </div>
-          </div>
-          
-          <div className="p-8 rounded-2xl bg-muted/50">
-            <h3 className="text-lg font-semibold text-foreground mb-4">Quick Setup</h3>
-            <pre className="bg-background p-4 rounded-lg text-sm overflow-x-auto text-foreground">
-{`import { FeedbackButton } from '@/feedback';
-import { STANDARD_PRESET } from '@/feedback/config/feedback.config';
+      {/* Tiers */}
+      <section className="border-t border-border bg-muted/30">
+        <div className="max-w-6xl mx-auto px-6 py-20">
+          <h2 className="text-3xl font-bold text-center text-foreground mb-12">
+            Three Tiers, One Template
+          </h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            <Card className="p-6 hover:shadow-lg transition-shadow">
+              <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center mb-4">
+                <MessageSquare className="w-6 h-6 text-muted-foreground" />
+              </div>
+              <h3 className="text-xl font-semibold text-card-foreground mb-2">Basic</h3>
+              <p className="text-muted-foreground mb-4">
+                Simple feedback collection for any app.
+              </p>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> Floating button</li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> Category selection</li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> Element picker</li>
+              </ul>
+            </Card>
 
-<FeedbackButton config={STANDARD_PRESET} />`}
-            </pre>
+            <Card className="p-6 border-2 border-primary hover:shadow-lg transition-shadow relative">
+              <div className="absolute -top-3 left-6 px-3 py-1 bg-primary text-primary-foreground text-xs font-medium rounded-full">
+                Popular
+              </div>
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                <Zap className="w-6 h-6 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold text-card-foreground mb-2">Standard</h3>
+              <p className="text-muted-foreground mb-4">
+                Admin dashboard to manage feedback.
+              </p>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> Everything in Basic</li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> Admin dashboard</li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> Status management</li>
+              </ul>
+            </Card>
+
+            <Card className="p-6 hover:shadow-lg transition-shadow">
+              <div className="w-12 h-12 rounded-xl bg-accent flex items-center justify-center mb-4">
+                <Shield className="w-6 h-6 text-accent-foreground" />
+              </div>
+              <h3 className="text-xl font-semibold text-card-foreground mb-2">Pro</h3>
+              <p className="text-muted-foreground mb-4">
+                AI-powered insights and automation.
+              </p>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> Everything in Standard</li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> AI categorization</li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> Developer prompts</li>
+              </ul>
+            </Card>
           </div>
         </div>
       </section>
@@ -377,19 +343,18 @@ import { STANDARD_PRESET } from '@/feedback/config/feedback.config';
       <footer className="border-t border-border py-8">
         <div className="max-w-6xl mx-auto px-6 text-center text-muted-foreground">
           <p>
-            Feedback Chatbot • MIT License • 
-            <a href="https://github.com/thecardsguy/feedback-chatbot" className="text-primary hover:underline ml-1">
-              View on GitHub
-            </a>
+            Feedback Widget Template • MIT License • 
+            <Link to="/admin" className="text-primary hover:underline ml-1">Admin</Link>
+            {' • '}
+            <Link to="/demo" className="text-primary hover:underline">Demo</Link>
+            {' • '}
+            <Link to="/setup" className="text-primary hover:underline">Setup</Link>
           </p>
         </div>
       </footer>
 
-      {/* Feedback Widget */}
-      <FeedbackButton config={feedbackConfig} />
-      
-      {/* Onboarding Modal - shows on first visit */}
-      <OnboardingModal />
+      {/* The Feedback Widget - Using the simple component */}
+      <FeedbackWidget appName="Feedback Template" enableAI />
     </div>
   );
 };

@@ -2,6 +2,9 @@
  * Feedback Widget Template - Main Export
  */
 
+// Quick Start (recommended for new users)
+export { FeedbackWidget } from './QuickStart';
+
 // Types
 export * from './types/feedback';
 
