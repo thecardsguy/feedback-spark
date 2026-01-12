@@ -4,6 +4,7 @@ import { STANDARD_PRESET } from '@/feedback/config/feedback.config';
 import { MessageSquare, Zap, Shield, Sparkles, ArrowRight, MousePointer2, CreditCard, Clock, Bot, Play, CheckCircle, Loader2, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { OnboardingModal } from '@/components/OnboardingModal';
 
 const Index = () => {
   const feedbackConfig = {
@@ -386,6 +387,9 @@ import { STANDARD_PRESET } from '@/feedback/config/feedback.config';
 
       {/* Feedback Widget */}
       <FeedbackButton config={feedbackConfig} />
+      
+      {/* Onboarding Modal - shows on first visit */}
+      <OnboardingModal />
     </div>
   );
 };
