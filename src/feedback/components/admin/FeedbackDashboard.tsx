@@ -61,6 +61,15 @@ const Icons = {
       <line x1="3" y1="18" x2="3.01" y2="18" />
     </svg>
   ),
+  FileText: () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+      <line x1="16" y1="13" x2="8" y2="13" />
+      <line x1="16" y1="17" x2="8" y2="17" />
+      <polyline points="10 9 9 9 8 9" />
+    </svg>
+  ),
 };
 
 // ============================================
@@ -153,6 +162,49 @@ export function FeedbackDashboard({ config }: FeedbackDashboardProps) {
     URL.revokeObjectURL(url);
   }, [displayItems, config.admin.exportEnabled, activeTab]);
 
+  // Export all feedback as Lovable prompts
+  const handleExportAsPrompts = useCallback(() => {
+    const aiItems = items.filter(item => item.ai_summary || item.ai_question_for_dev);
+    
+    if (aiItems.length === 0) {
+      alert('No AI-enhanced feedback to export. Submit feedback using the Pro tier first.');
+      return;
+    }
+
+    const markdownContent = [
+      `# Feedback Prompts for Lovable`,
+      ``,
+      `Generated: ${new Date().toLocaleString()}`,
+      `Total Items: ${aiItems.length}`,
+      ``,
+      `---`,
+      ``,
+      ...aiItems.map((item, index) => [
+        `## ${index + 1}. ${item.ai_category || item.category || 'Feedback'} (${item.severity})`,
+        ``,
+        `### User Feedback`,
+        item.raw_text,
+        ``,
+        item.ai_summary ? `### AI Summary\n${item.ai_summary}\n` : '',
+        item.ai_question_for_dev ? `### Prompt for Lovable\n${item.ai_question_for_dev}\n` : '',
+        item.page_url ? `**Page:** ${item.page_url}\n` : '',
+        item.target_element ? `**Element:** \`<${item.target_element.tagName}>\` - ${item.target_element.selector}\n` : '',
+        `**Status:** ${item.status} | **Created:** ${new Date(item.created_at).toLocaleDateString()}`,
+        ``,
+        `---`,
+        ``,
+      ].filter(Boolean).join('\n')),
+    ].join('\n');
+
+    const blob = new Blob([markdownContent], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `lovable-prompts-${new Date().toISOString().split('T')[0]}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [items]);
+
   const handleStatusChange = useCallback(async (status: FeedbackStatus) => {
     if (!selectedItem) return;
     await updateStatus(selectedItem.id, status);
@@ -178,9 +230,15 @@ export function FeedbackDashboard({ config }: FeedbackDashboardProps) {
             <Icons.Refresh />
           </button>
           {config.admin.exportEnabled && (
-            <button onClick={handleExport} style={styles.iconButton} title="Export CSV">
-              <Icons.Download />
-            </button>
+            <>
+              <button onClick={handleExportAsPrompts} style={styles.exportPromptsButton} title="Export as Lovable Prompts">
+                <Icons.FileText />
+                <span>Export Prompts</span>
+              </button>
+              <button onClick={handleExport} style={styles.iconButton} title="Export CSV">
+                <Icons.Download />
+              </button>
+            </>
           )}
         </div>
       </div>
@@ -366,6 +424,20 @@ const styles: Record<string, React.CSSProperties> = {
     backgroundColor: 'white',
     cursor: 'pointer',
     color: '#4b5563',
+    transition: 'all 0.15s',
+  },
+  exportPromptsButton: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6,
+    padding: '8px 12px',
+    border: '1px solid #8b5cf6',
+    borderRadius: 6,
+    backgroundColor: '#faf5ff',
+    cursor: 'pointer',
+    color: '#7c3aed',
+    fontSize: 13,
+    fontWeight: 500,
     transition: 'all 0.15s',
   },
   tabsContainer: {

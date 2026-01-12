@@ -43,6 +43,32 @@ This template turns your feedback collection into an **AI-powered issue tracker*
 
 ---
 
+## 🧪 Demo Mode & Setup Wizard
+
+### Try Without Using Credits
+
+This template includes a **Demo Mode** that lets you test the full AI-powered feedback flow without consuming any API credits:
+
+- **Demo Mode**: Mock AI responses that simulate real output
+- **Setup Wizard** (`/setup`): Verify your configuration and test submissions
+- **Interactive Demo**: Try the feedback flow right on the landing page
+
+Demo mode activates automatically when:
+1. You explicitly request it (`demo_mode: true`)
+2. No AI API key is configured
+3. You're testing from the Setup Wizard
+
+### Setup Wizard
+
+Visit `/setup` after deploying to:
+
+1. ✅ Check database connectivity
+2. ✅ Verify AI provider status (Lovable AI / Demo Mode)
+3. ✅ Test basic feedback submission
+4. ✅ Test AI-enhanced submission (demo mode)
+
+---
+
 ## 🚀 Quick Start
 
 ### Option 1: Use with Lovable (Recommended)
@@ -51,7 +77,8 @@ This template turns your feedback collection into an **AI-powered issue tracker*
 2. **Connect to Lovable** — Go to [lovable.dev](https://lovable.dev), create a new project, and connect your GitHub repo
 3. **Enable Lovable Cloud** — In the Lovable editor, enable Cloud to get a database automatically
 4. **Run the migration** — Ask Lovable to run the database migration (see below)
-5. **Done!** — The feedback widget is ready to use
+5. **Visit /setup** — Run through the Setup Wizard to verify everything works
+6. **Done!** — The feedback widget is ready to use
 
 ### Option 2: Self-Hosted with Supabase
 
@@ -152,14 +179,16 @@ src/
 │   └── index.ts                 # Public exports
 ├── pages/
 │   ├── Index.tsx                # Demo landing page
-│   └── Admin.tsx                # Admin dashboard page
+│   ├── Admin.tsx                # Admin dashboard page
+│   └── Setup.tsx                # Setup wizard for template users
 └── integrations/
     └── supabase/                # Auto-generated Supabase client
 
 supabase/
 ├── functions/
 │   ├── submit-feedback/         # Basic submission endpoint
-│   └── submit-feedback-ai/      # AI-enhanced submission endpoint
+│   ├── submit-feedback-ai/      # AI-enhanced submission endpoint
+│   └── health-check/            # System health verification
 └── config.toml                  # Supabase configuration
 ```
 
@@ -201,6 +230,7 @@ const myConfig = createConfig({
   },
   ai: {
     enabled: true,                // Enable AI features
+    demoMode: false,              // Use mock AI (no credits)
     provider: 'lovable',          // 'lovable' | 'openai'
     summarize: true,              // Generate summaries
     categorize: true,             // Auto-categorize
@@ -209,7 +239,7 @@ const myConfig = createConfig({
   admin: {
     showStats: true,              // Show statistics
     copyToClipboard: true,        // Enable copy button
-    exportEnabled: true,          // Enable export
+    exportEnabled: true,          // Enable CSV export
     statusUpdates: true,          // Allow status changes
   },
   categories: [
