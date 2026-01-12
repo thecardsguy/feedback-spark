@@ -1,7 +1,7 @@
 /**
- * Feedback Widget Template - Feedback Button
+ * Feedback Widget - Feedback Button
  * 
- * Modern, sleek floating button with glassmorphism and smooth animations.
+ * The main entry point for users. A floating button that opens the feedback form.
  * Fully customizable via config.
  */
 
@@ -21,12 +21,12 @@ import type {
 
 const Icons = {
   Message: () => (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
     </svg>
   ),
   Bug: () => (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <path d="m8 2 1.88 1.88" />
       <path d="M14.12 3.88 16 2" />
       <path d="M9 7.13v-1a3.003 3.003 0 1 1 6 0v1" />
@@ -41,28 +41,28 @@ const Icons = {
     </svg>
   ),
   Lightbulb: () => (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5" />
       <path d="M9 18h6" />
       <path d="M10 22h4" />
     </svg>
   ),
   Help: () => (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <circle cx="12" cy="12" r="10" />
       <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
       <path d="M12 17h.01" />
     </svg>
   ),
   X: () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <line x1="18" y1="6" x2="6" y2="18" />
       <line x1="6" y1="6" x2="18" y2="18" />
     </svg>
   ),
   Check: () => (
-    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="20 6 9 17 4 12" />
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M20 6L9 17l-5-5" />
     </svg>
   ),
 };
@@ -79,27 +79,29 @@ const getPositionStyles = (position: WidgetPosition): React.CSSProperties => {
 
   switch (position) {
     case 'bottom-right':
-      return { ...base, bottom: 24, right: 24 };
+      return { ...base, bottom: 20, right: 20 };
     case 'bottom-left':
-      return { ...base, bottom: 24, left: 24 };
+      return { ...base, bottom: 20, left: 20 };
     case 'top-right':
-      return { ...base, top: 24, right: 24 };
+      return { ...base, top: 20, right: 20 };
     case 'top-left':
-      return { ...base, top: 24, left: 24 };
+      return { ...base, top: 20, left: 20 };
     default:
-      return { ...base, bottom: 24, right: 24 };
+      return { ...base, bottom: 20, right: 20 };
   }
 };
 
-const getModalPosition = (position: WidgetPosition) => {
+const getModalPosition = (position: WidgetPosition): { origin: string; alignment: React.CSSProperties } => {
   const isBottom = position.startsWith('bottom');
   const isRight = position.endsWith('right');
 
   return {
-    originX: isRight ? 1 : 0,
-    originY: isBottom ? 1 : 0,
-    [isBottom ? 'bottom' : 'top']: 72,
-    [isRight ? 'right' : 'left']: 0,
+    origin: `${isBottom ? 'bottom' : 'top'} ${isRight ? 'right' : 'left'}`,
+    alignment: {
+      position: 'absolute' as const,
+      [isBottom ? 'bottom' : 'top']: 64,
+      [isRight ? 'right' : 'left']: 0,
+    },
   };
 };
 
@@ -128,19 +130,17 @@ export function FeedbackButton({ config, className }: FeedbackButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
-  
-  const { submit } = useFeedback({ aiEnabled: config.ai.enabled });
+  const { submit } = useFeedback({ aiEnabled: config.ai?.enabled });
 
-  // Close on escape key
+  // Handle escape key to close
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
         setIsOpen(false);
       }
     };
-    window.addEventListener('keydown', handleEscape);
-    return () => window.removeEventListener('keydown', handleEscape);
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen]);
 
   const handleSubmit = useCallback(async (data: FeedbackSubmission) => {
@@ -151,17 +151,17 @@ export function FeedbackButton({ config, className }: FeedbackButtonProps) {
         config.onSubmit(data);
       }
 
-      await submit(data);
-      
+      const result = await submit(data);
+
       if (config.onSuccess) {
-        config.onSuccess(data as any);
+        config.onSuccess(result);
       }
       
       setShowSuccess(true);
       setTimeout(() => {
         setShowSuccess(false);
         setIsOpen(false);
-      }, 2500);
+      }, 2000);
     } catch (error) {
       if (config.onError) {
         config.onError(error instanceof Error ? error : new Error('Submission failed'));
@@ -171,199 +171,115 @@ export function FeedbackButton({ config, className }: FeedbackButtonProps) {
     }
   }, [config, submit]);
 
-  const buttonColor = config.buttonColor || 'hsl(32, 95%, 52%)';
+  const buttonColor = config.buttonColor || '#3b82f6';
   const modalPosition = getModalPosition(config.position);
 
   return (
     <div style={getPositionStyles(config.position)} className={className}>
-      {/* Backdrop when open */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            onClick={() => setIsOpen(false)}
-            style={{
-              position: 'fixed',
-              inset: 0,
-              background: 'rgba(0, 0, 0, 0.2)',
-              backdropFilter: 'blur(2px)',
-              zIndex: -1,
-            }}
-          />
-        )}
-      </AnimatePresence>
-
       {/* Main floating button */}
       <motion.button
         onClick={() => setIsOpen(!isOpen)}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        animate={{
-          scale: isHovered ? 1.08 : 1,
-          rotate: isOpen ? 180 : 0,
-        }}
+        whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+        animate={{ rotate: isOpen ? 90 : 0 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 20 }}
         style={{
           width: 56,
           height: 56,
           borderRadius: '50%',
-          background: `linear-gradient(135deg, ${buttonColor} 0%, ${buttonColor} 50%, hsl(24, 95%, 45%) 100%)`,
+          backgroundColor: buttonColor,
           color: 'white',
           border: 'none',
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          boxShadow: isHovered 
-            ? `0 8px 32px -4px ${buttonColor}80, 0 4px 12px -2px rgba(0,0,0,0.2)`
-            : `0 4px 20px -4px ${buttonColor}60, 0 2px 8px -2px rgba(0,0,0,0.15)`,
-          position: 'relative',
-          overflow: 'hidden',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
         }}
         aria-label={isOpen ? 'Close feedback' : 'Send feedback'}
       >
-        {/* Shimmer effect */}
-        <motion.div
-          animate={{
-            x: isHovered ? ['-100%', '200%'] : '-100%',
-          }}
-          transition={{ duration: 0.8, ease: 'easeInOut' }}
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)',
-            transform: 'skewX(-15deg)',
-          }}
-        />
-        <motion.span
-          animate={{ rotate: isOpen ? 180 : 0 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-        >
-          {isOpen ? <Icons.X /> : getIcon(config.buttonIcon)}
-        </motion.span>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={isOpen ? 'close' : 'open'}
+            initial={{ opacity: 0, rotate: -90 }}
+            animate={{ opacity: 1, rotate: 0 }}
+            exit={{ opacity: 0, rotate: 90 }}
+            transition={{ duration: 0.15 }}
+          >
+            {isOpen ? <Icons.X /> : getIcon(config.buttonIcon)}
+          </motion.div>
+        </AnimatePresence>
       </motion.button>
 
       {/* Feedback modal */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ 
-              opacity: 0, 
-              scale: 0.9,
-              y: modalPosition.bottom !== undefined ? 20 : -20,
-            }}
-            animate={{ 
-              opacity: 1, 
-              scale: 1,
-              y: 0,
-            }}
-            exit={{ 
-              opacity: 0, 
-              scale: 0.9,
-              y: modalPosition.bottom !== undefined ? 20 : -20,
-            }}
-            transition={{ 
-              type: 'spring', 
-              stiffness: 400, 
-              damping: 25,
-            }}
+            initial={{ opacity: 0, scale: 0.9, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 10 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
             style={{
-              position: 'absolute',
-              bottom: modalPosition.bottom,
-              top: modalPosition.top,
-              right: modalPosition.right,
-              left: modalPosition.left,
-              width: 380,
-              transformOrigin: `${modalPosition.originX === 1 ? 'right' : 'left'} ${modalPosition.originY === 1 ? 'bottom' : 'top'}`,
+              ...modalPosition.alignment,
+              width: 360,
+              backgroundColor: 'white',
+              borderRadius: 12,
+              boxShadow: '0 8px 30px rgba(0, 0, 0, 0.12)',
+              overflow: 'hidden',
+              transformOrigin: modalPosition.origin,
             }}
           >
-            <div
-              style={{
-                background: 'rgba(255, 255, 255, 0.95)',
-                backdropFilter: 'blur(20px)',
-                borderRadius: 20,
-                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05)',
-                overflow: 'hidden',
-              }}
-              className="dark:bg-card/95"
-            >
+            <AnimatePresence mode="wait">
               {showSuccess ? (
                 <motion.div
+                  key="success"
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
                   style={{
-                    padding: 48,
+                    padding: 32,
                     textAlign: 'center',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: 16,
+                    color: '#22c55e',
                   }}
                 >
                   <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    transition={{ 
-                      type: 'spring', 
-                      stiffness: 300, 
-                      damping: 15,
-                      delay: 0.1 
-                    }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 15, delay: 0.1 }}
                     style={{
                       width: 64,
                       height: 64,
                       borderRadius: '50%',
-                      background: 'linear-gradient(135deg, hsl(142, 71%, 45%) 0%, hsl(142, 71%, 35%) 100%)',
+                      backgroundColor: '#dcfce7',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      color: 'white',
+                      margin: '0 auto 16px',
                     }}
                   >
                     <Icons.Check />
                   </motion.div>
-                  <div>
-                    <motion.div 
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.2 }}
-                      style={{ 
-                        fontSize: 18, 
-                        fontWeight: 600,
-                        color: 'hsl(220, 20%, 14%)',
-                      }}
-                      className="dark:text-foreground"
-                    >
-                      Thank you!
-                    </motion.div>
-                    <motion.div 
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.3 }}
-                      style={{ 
-                        fontSize: 14, 
-                        color: 'hsl(220, 10%, 46%)', 
-                        marginTop: 4 
-                      }}
-                      className="dark:text-muted-foreground"
-                    >
-                      Your feedback helps us improve.
-                    </motion.div>
+                  <div style={{ fontSize: 18, fontWeight: 600 }}>Thank you!</div>
+                  <div style={{ fontSize: 14, color: '#6b7280', marginTop: 4 }}>
+                    Your feedback has been submitted.
                   </div>
                 </motion.div>
               ) : (
-                <FeedbackForm
-                  config={config}
-                  onSubmit={handleSubmit}
-                  onCancel={() => setIsOpen(false)}
-                  isSubmitting={isSubmitting}
-                />
+                <motion.div
+                  key="form"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  <FeedbackForm
+                    config={config}
+                    onSubmit={handleSubmit}
+                    onCancel={() => setIsOpen(false)}
+                    isSubmitting={isSubmitting}
+                  />
+                </motion.div>
               )}
-            </div>
+            </AnimatePresence>
           </motion.div>
         )}
       </AnimatePresence>
