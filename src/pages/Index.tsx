@@ -1,6 +1,6 @@
 import { FeedbackButton } from '@/feedback';
 import { STANDARD_PRESET } from '@/feedback/config/feedback.config';
-import { MessageSquare, Zap, Shield, Sparkles, ArrowRight } from 'lucide-react';
+import { MessageSquare, Zap, Shield, Sparkles, ArrowRight, MousePointer2, CreditCard, Clock, Bot } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
@@ -41,6 +41,112 @@ const Index = () => {
           </div>
         </div>
       </header>
+
+      {/* Perfect for Lovable Users Section */}
+      <section className="bg-primary/5 border-y border-border">
+        <div className="max-w-6xl mx-auto px-6 py-20">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary mb-4">
+              <Bot className="w-4 h-4" />
+              <span className="text-sm font-medium">Built for Lovable</span>
+            </div>
+            <h2 className="text-3xl font-bold text-foreground mb-4">
+              Your Personal Issue Tracker for AI Development
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+              Stop losing track of bugs and improvements. Capture issues as you see them, 
+              then batch-prompt Lovable when you're ready to fix everything at once.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Element Picker */}
+            <div className="p-6 rounded-2xl bg-card border border-border">
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                <MousePointer2 className="w-6 h-6 text-primary" />
+              </div>
+              <h3 className="text-lg font-semibold text-card-foreground mb-2">Pinpoint Accuracy</h3>
+              <p className="text-sm text-muted-foreground">
+                Click anywhere on your page to select the exact element with an issue. 
+                The captured context helps Lovable understand precisely what needs fixing.
+              </p>
+            </div>
+
+            {/* Save Credits */}
+            <div className="p-6 rounded-2xl bg-card border border-border">
+              <div className="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center mb-4">
+                <CreditCard className="w-6 h-6 text-green-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-card-foreground mb-2">Save Credits</h3>
+              <p className="text-sm text-muted-foreground">
+                No more wasted prompts from vague descriptions. Precise element targeting 
+                means fewer back-and-forth corrections and more accurate first-try fixes.
+              </p>
+            </div>
+
+            {/* Queue for Later */}
+            <div className="p-6 rounded-2xl bg-card border border-border">
+              <div className="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center mb-4">
+                <Clock className="w-6 h-6 text-orange-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-card-foreground mb-2">Queue Issues</h3>
+              <p className="text-sm text-muted-foreground">
+                Spot an issue? Log it instantly and keep browsing. All your feedback is saved 
+                so you can batch-prompt fixes when you have dedicated dev time.
+              </p>
+            </div>
+
+            {/* AI Interpretation */}
+            <div className="p-6 rounded-2xl bg-card border border-border">
+              <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center mb-4">
+                <Bot className="w-6 h-6 text-purple-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-card-foreground mb-2">AI-Ready Prompts</h3>
+              <p className="text-sm text-muted-foreground">
+                Pro tier AI interprets your feedback and generates clear, actionable prompts 
+                you can paste directly into Lovable for immediate implementation.
+              </p>
+            </div>
+          </div>
+
+          {/* Workflow Explanation */}
+          <div className="mt-12 p-8 rounded-2xl bg-card border border-border">
+            <h3 className="text-xl font-semibold text-card-foreground mb-4 text-center">
+              The Feedback Spark Workflow
+            </h3>
+            <div className="grid md:grid-cols-4 gap-6 text-center">
+              <div>
+                <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-3 font-bold">1</div>
+                <p className="text-sm text-muted-foreground">
+                  <strong className="text-foreground">See an issue</strong><br />
+                  While using your app, notice a bug or something to improve
+                </p>
+              </div>
+              <div>
+                <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-3 font-bold">2</div>
+                <p className="text-sm text-muted-foreground">
+                  <strong className="text-foreground">Click & describe</strong><br />
+                  Select the element, describe the issue, and submit
+                </p>
+              </div>
+              <div>
+                <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-3 font-bold">3</div>
+                <p className="text-sm text-muted-foreground">
+                  <strong className="text-foreground">Collect & organize</strong><br />
+                  Issues are saved with full context in your admin dashboard
+                </p>
+              </div>
+              <div>
+                <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-3 font-bold">4</div>
+                <p className="text-sm text-muted-foreground">
+                  <strong className="text-foreground">Batch prompt</strong><br />
+                  When ready, copy the AI-generated prompts to Lovable and fix everything
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Features Section */}
       <section className="max-w-6xl mx-auto px-6 py-20">
