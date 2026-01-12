@@ -7,6 +7,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ElementPicker } from './ElementPicker';
+import { getHtml2Canvas } from '@/lib/vendorScripts';
 import type { 
   FeedbackFormProps, 
   FeedbackSubmission, 
@@ -42,6 +43,17 @@ const Icons = {
   Sparkles: () => (
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+    </svg>
+  ),
+  Camera: () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />
+      <circle cx="12" cy="13" r="3" />
+    </svg>
+  ),
+  Loader: () => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M21 12a9 9 0 1 1-6.219-8.56" />
     </svg>
   ),
 };
@@ -130,6 +142,8 @@ export function FeedbackForm({ config, onSubmit, onCancel, isSubmitting }: Feedb
   const [severity, setSeverity] = useState<FeedbackSeverity>('medium');
   const [targetElement, setTargetElement] = useState<TargetElement | null>(null);
   const [isPickingElement, setIsPickingElement] = useState(false);
+  const [screenshot, setScreenshot] = useState<string | null>(null);
+  const [isCapturing, setIsCapturing] = useState(false);
   const isDarkMode = useIsDarkMode();
   const theme = getTheme(isDarkMode);
 
@@ -137,6 +151,30 @@ export function FeedbackForm({ config, onSubmit, onCancel, isSubmitting }: Feedb
     setTargetElement(element);
     setIsPickingElement(false);
   }, []);
+
+  const captureScreenshot = async () => {
+    setIsCapturing(true);
+    try {
+      const html2canvas = await getHtml2Canvas();
+      const canvas = await html2canvas(document.body, {
+        scale: 1,
+        logging: false,
+        useCORS: true,
+        allowTaint: true,
+        ignoreElements: (el) => {
+          // Ignore the feedback widget itself
+          return el.closest('[data-feedback-widget]') !== null;
+        },
+      });
+      // Compress to JPEG for smaller size
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+      setScreenshot(dataUrl);
+    } catch (error) {
+      console.error('Error capturing screenshot:', error);
+    } finally {
+      setIsCapturing(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -147,6 +185,7 @@ export function FeedbackForm({ config, onSubmit, onCancel, isSubmitting }: Feedb
       category: config.features.categories ? category : undefined,
       severity: config.features.severityLevels ? severity : undefined,
       target_element: targetElement || undefined,
+      screenshot: screenshot || undefined,
       page_url: window.location.href,
     };
 
@@ -303,6 +342,65 @@ export function FeedbackForm({ config, onSubmit, onCancel, isSubmitting }: Feedb
                 >
                   <Icons.Target />
                   <span>Target a specific element</span>
+                </motion.button>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        )}
+
+        {/* Screenshot capture */}
+        {config.features.screenshotCapture && (
+          <motion.div 
+            style={styles.section}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.22 }}
+          >
+            <AnimatePresence mode="wait">
+              {screenshot ? (
+                <motion.div 
+                  key="screenshot-preview"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  style={styles.screenshotPreview}
+                >
+                  <img 
+                    src={screenshot} 
+                    alt="Screenshot" 
+                    style={styles.screenshotImage}
+                  />
+                  <button 
+                    type="button" 
+                    onClick={() => setScreenshot(null)} 
+                    style={styles.screenshotRemoveButton}
+                  >
+                    <Icons.X />
+                  </button>
+                </motion.div>
+              ) : (
+                <motion.button
+                  key="capture"
+                  type="button"
+                  onClick={captureScreenshot}
+                  disabled={isCapturing}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  whileHover={{ borderColor: theme.primary }}
+                  style={styles.pickElementButton}
+                >
+                  {isCapturing ? (
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                    >
+                      <Icons.Loader />
+                    </motion.div>
+                  ) : (
+                    <Icons.Camera />
+                  )}
+                  <span>{isCapturing ? 'Capturing...' : 'Capture screenshot'}</span>
                 </motion.button>
               )}
             </AnimatePresence>
@@ -516,6 +614,32 @@ const getStyles = (theme: ReturnType<typeof getTheme>): Record<string, React.CSS
     justifyContent: 'center',
     borderRadius: 4,
     color: theme.textMuted,
+  },
+  screenshotPreview: {
+    position: 'relative',
+    borderRadius: 8,
+    overflow: 'hidden',
+    border: `1px solid ${theme.primaryBorder}`,
+  },
+  screenshotImage: {
+    width: '100%',
+    height: 120,
+    objectFit: 'cover',
+    display: 'block',
+  },
+  screenshotRemoveButton: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+    background: 'rgba(0,0,0,0.6)',
+    border: 'none',
+    cursor: 'pointer',
+    padding: 6,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 6,
+    color: 'white',
   },
   submitButton: {
     display: 'flex',

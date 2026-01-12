@@ -42,9 +42,14 @@ This template turns your feedback collection into an **AI-powered issue tracker*
 
 | Tier | Features |
 |------|----------|
-| **Basic** | Floating feedback button, category selection, severity levels, auto-capture page context |
-| **Standard** | Everything in Basic + Admin dashboard, status management, feedback statistics, search & filtering |
+| **Basic** | Floating feedback button, category selection, element picker, auto-capture page context |
+| **Standard** | Everything in Basic + Admin dashboard, severity levels, screenshot capture, status management, statistics |
 | **Pro** | Everything in Standard + AI categorization, auto-generated summaries, developer questions, sentiment analysis |
+
+### New in v2.0
+- 📱 **PWA Support** — Installable on mobile devices, works offline
+- 📸 **Screenshot Capture** — One-click page screenshots attached to feedback
+- 📊 **Export Presets** — Web, Print, and Presentation export profiles
 
 ---
 

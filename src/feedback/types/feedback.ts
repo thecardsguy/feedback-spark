@@ -81,6 +81,7 @@ export interface FeedbackConfig {
     categories: boolean;
     severityLevels: boolean;
     anonymousSubmission: boolean;
+    screenshotCapture?: boolean;
   };
   
   // === AI OPTIONS (Pro tier) ===
@@ -116,6 +117,7 @@ export interface FeedbackSubmission {
   severity?: FeedbackSeverity;
   page_url?: string;
   target_element?: TargetElement;
+  screenshot?: string; // Base64 encoded screenshot
   context?: Record<string, unknown>;
 }
 

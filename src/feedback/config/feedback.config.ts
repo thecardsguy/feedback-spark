@@ -35,6 +35,7 @@ export const BASIC_PRESET: FeedbackConfig = {
     categories: true,
     severityLevels: false,
     anonymousSubmission: true,
+    screenshotCapture: false,
   },
   ai: {
     enabled: false,
@@ -60,6 +61,7 @@ export const STANDARD_PRESET: FeedbackConfig = {
   features: {
     ...BASIC_PRESET.features,
     severityLevels: true,
+    screenshotCapture: true,
   },
   admin: {
     showStats: true,
