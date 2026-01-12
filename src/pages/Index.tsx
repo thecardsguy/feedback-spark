@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { FeedbackWidget } from '@/feedback';
-import { MessageSquare, Zap, Shield, Sparkles, ArrowRight, MousePointer2, CreditCard, Clock, Bot, Copy, Check, Code, Brain, Download, BookOpen, Settings } from 'lucide-react';
+import { MessageSquare, Zap, Shield, Sparkles, ArrowRight, MousePointer2, CreditCard, Clock, Brain, Copy, Check, Code, Download } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AccuracyTest from '@/components/AccuracyTest';
 import SetupGuide from '@/components/SetupGuide';
 import SetupVerification from '@/components/SetupVerification';
+import TierComparison from '@/components/TierComparison';
 
 const Index = () => {
   const [copied, setCopied] = useState<string | null>(null);
@@ -294,26 +295,28 @@ const config = createConfig({
         </div>
       </section>
 
-      {/* Tiers */}
+      {/* Tiers Comparison */}
       <section className="border-t border-border bg-muted/30">
         <div className="max-w-6xl mx-auto px-6 py-20">
-          <h2 className="text-3xl font-bold text-center text-foreground mb-12">
-            Three Tiers, One Template
-          </h2>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-foreground mb-4">
+              Three Tiers, One Template
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              All tiers included in the download. Enable features as needed.
+            </p>
+          </div>
+
+          {/* Quick Tier Cards */}
+          <div className="grid md:grid-cols-3 gap-6 mb-12">
             <Card className="p-6 hover:shadow-lg transition-shadow">
               <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center mb-4">
                 <MessageSquare className="w-6 h-6 text-muted-foreground" />
               </div>
               <h3 className="text-xl font-semibold text-card-foreground mb-2">Basic</h3>
-              <p className="text-muted-foreground mb-4">
-                Simple feedback collection for any app.
+              <p className="text-muted-foreground text-sm">
+                Simple feedback collection for any app. No backend required.
               </p>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> Floating button</li>
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> Category selection</li>
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> Element picker</li>
-              </ul>
             </Card>
 
             <Card className="p-6 border-2 border-primary hover:shadow-lg transition-shadow relative">
@@ -324,14 +327,9 @@ const config = createConfig({
                 <Zap className="w-6 h-6 text-primary" />
               </div>
               <h3 className="text-xl font-semibold text-card-foreground mb-2">Standard</h3>
-              <p className="text-muted-foreground mb-4">
-                Admin dashboard to manage feedback.
+              <p className="text-muted-foreground text-sm">
+                Full admin dashboard with statistics and status management.
               </p>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> Everything in Basic</li>
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> Admin dashboard</li>
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> Status management</li>
-              </ul>
             </Card>
 
             <Card className="p-6 hover:shadow-lg transition-shadow">
@@ -339,16 +337,14 @@ const config = createConfig({
                 <Shield className="w-6 h-6 text-accent-foreground" />
               </div>
               <h3 className="text-xl font-semibold text-card-foreground mb-2">Pro</h3>
-              <p className="text-muted-foreground mb-4">
-                AI-powered insights and automation.
+              <p className="text-muted-foreground text-sm">
+                AI-powered summarization, categorization, and developer prompts.
               </p>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> Everything in Standard</li>
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> AI categorization</li>
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> Developer prompts</li>
-              </ul>
             </Card>
           </div>
+
+          {/* Detailed Comparison Table */}
+          <TierComparison />
         </div>
       </section>
 

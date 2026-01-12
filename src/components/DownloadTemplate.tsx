@@ -215,13 +215,14 @@ export function DownloadTemplate() {
   );
 }
 
-// Interactive Widget Preview Component
+// Interactive Widget Preview Component with Dark Mode Toggle
 function WidgetPreview() {
   const [isOpen, setIsOpen] = useState(false);
   const [category, setCategory] = useState<string>('bug');
   const [severity, setSeverity] = useState<string>('medium');
   const [text, setText] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isDark, setIsDark] = useState(true);
 
   const categories = [
     { value: 'bug', label: 'Bug', emoji: '🐛', icon: Bug },
@@ -244,133 +245,189 @@ function WidgetPreview() {
     }, 1500);
   };
 
+  // Theme-specific styles
+  const theme = isDark ? {
+    bg: 'bg-zinc-900',
+    bgGradient: 'from-zinc-800/40 via-zinc-900/60 to-zinc-800/40',
+    skeleton: 'bg-zinc-700/30',
+    skeletonLight: 'bg-zinc-700/20',
+    card: 'bg-zinc-800 border-zinc-700',
+    text: 'text-zinc-100',
+    textMuted: 'text-zinc-400',
+    input: 'bg-zinc-700/50 border-zinc-600',
+    button: 'bg-blue-600 text-white',
+    buttonMuted: 'bg-zinc-700/50 text-zinc-400 border-zinc-600',
+    success: 'bg-green-900/30',
+  } : {
+    bg: 'bg-gray-50',
+    bgGradient: 'from-gray-100/40 via-white/60 to-gray-100/40',
+    skeleton: 'bg-gray-300/40',
+    skeletonLight: 'bg-gray-200/60',
+    card: 'bg-white border-gray-200',
+    text: 'text-gray-900',
+    textMuted: 'text-gray-500',
+    input: 'bg-gray-100 border-gray-300',
+    button: 'bg-blue-600 text-white',
+    buttonMuted: 'bg-gray-100 text-gray-500 border-gray-300',
+    success: 'bg-green-100',
+  };
+
   return (
-    <div className="relative h-64 bg-gradient-to-br from-muted/40 via-muted/20 to-muted/40 rounded-xl border border-border overflow-hidden">
-      {/* Mock app background */}
-      <div className="absolute inset-0 p-4">
-        <div className="h-3 w-24 bg-muted-foreground/20 rounded mb-2" />
-        <div className="h-2 w-full bg-muted-foreground/10 rounded mb-1" />
-        <div className="h-2 w-3/4 bg-muted-foreground/10 rounded mb-1" />
-        <div className="h-2 w-5/6 bg-muted-foreground/10 rounded mb-4" />
-        <div className="flex gap-2 mb-4">
-          <div className="h-16 w-16 bg-muted-foreground/15 rounded-lg" />
-          <div className="flex-1">
-            <div className="h-2 w-1/2 bg-muted-foreground/15 rounded mb-1" />
-            <div className="h-2 w-3/4 bg-muted-foreground/10 rounded mb-1" />
-            <div className="h-2 w-2/3 bg-muted-foreground/10 rounded" />
-          </div>
+    <div className="space-y-3">
+      {/* Theme Toggle */}
+      <div className="flex items-center justify-between">
+        <span className="text-sm text-muted-foreground">Preview theme:</span>
+        <div className="flex items-center gap-1 p-1 rounded-lg bg-muted/50">
+          <button
+            onClick={() => setIsDark(false)}
+            className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+              !isDark ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            ☀️ Light
+          </button>
+          <button
+            onClick={() => setIsDark(true)}
+            className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+              isDark ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            🌙 Dark
+          </button>
         </div>
-        <div className="h-8 w-24 bg-primary/20 rounded-lg" />
       </div>
 
-      {/* Floating feedback button */}
-      <motion.button
-        onClick={() => setIsOpen(!isOpen)}
-        className="absolute bottom-4 right-4 w-12 h-12 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center z-20"
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-      >
-        {isOpen ? <X className="w-5 h-5" /> : <MessageCircle className="w-5 h-5" />}
-      </motion.button>
+      {/* Preview Container */}
+      <div className={`relative h-64 ${theme.bg} bg-gradient-to-br ${theme.bgGradient} rounded-xl border border-border overflow-hidden transition-colors duration-300`}>
+        {/* Mock app background */}
+        <div className="absolute inset-0 p-4">
+          <div className={`h-3 w-24 ${theme.skeleton} rounded mb-2`} />
+          <div className={`h-2 w-full ${theme.skeletonLight} rounded mb-1`} />
+          <div className={`h-2 w-3/4 ${theme.skeletonLight} rounded mb-1`} />
+          <div className={`h-2 w-5/6 ${theme.skeletonLight} rounded mb-4`} />
+          <div className="flex gap-2 mb-4">
+            <div className={`h-16 w-16 ${theme.skeleton} rounded-lg`} />
+            <div className="flex-1">
+              <div className={`h-2 w-1/2 ${theme.skeleton} rounded mb-1`} />
+              <div className={`h-2 w-3/4 ${theme.skeletonLight} rounded mb-1`} />
+              <div className={`h-2 w-2/3 ${theme.skeletonLight} rounded`} />
+            </div>
+          </div>
+          <div className={`h-8 w-24 ${isDark ? 'bg-blue-600/30' : 'bg-blue-500/20'} rounded-lg`} />
+        </div>
 
-      {/* Feedback form popup */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 10 }}
-            className="absolute bottom-20 right-4 w-64 bg-card border border-border rounded-xl shadow-xl overflow-hidden z-10"
-          >
-            {showSuccess ? (
-              <div className="p-6 text-center">
-                <div className="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto mb-3">
-                  <Check className="w-6 h-6 text-green-500" />
+        {/* Floating feedback button */}
+        <motion.button
+          onClick={() => setIsOpen(!isOpen)}
+          className={`absolute bottom-4 right-4 w-12 h-12 rounded-full ${theme.button} shadow-lg flex items-center justify-center z-20`}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          {isOpen ? <X className="w-5 h-5" /> : <MessageCircle className="w-5 h-5" />}
+        </motion.button>
+
+        {/* Feedback form popup */}
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 10 }}
+              className={`absolute bottom-20 right-4 w-64 ${theme.card} rounded-xl shadow-xl overflow-hidden z-10 border`}
+            >
+              {showSuccess ? (
+                <div className="p-6 text-center">
+                  <div className={`w-12 h-12 rounded-full ${theme.success} flex items-center justify-center mx-auto mb-3`}>
+                    <Check className="w-6 h-6 text-green-500" />
+                  </div>
+                  <p className="text-sm font-semibold text-green-500">Thank you!</p>
+                  <p className={`text-xs ${theme.textMuted}`}>Feedback submitted</p>
                 </div>
-                <p className="text-sm font-semibold text-green-500">Thank you!</p>
-                <p className="text-xs text-muted-foreground">Feedback submitted</p>
-              </div>
-            ) : (
-              <div className="p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-semibold text-sm">Send Feedback</h4>
-                  <button onClick={() => setIsOpen(false)} className="text-muted-foreground hover:text-foreground">
-                    <X className="w-4 h-4" />
+              ) : (
+                <div className="p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className={`font-semibold text-sm ${theme.text}`}>Send Feedback</h4>
+                    <button onClick={() => setIsOpen(false)} className={`${theme.textMuted} hover:${theme.text}`}>
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* Category buttons */}
+                  <div className="flex gap-1">
+                    {categories.map((cat) => (
+                      <button
+                        key={cat.value}
+                        onClick={() => setCategory(cat.value)}
+                        className={`flex-1 py-1.5 rounded-md text-xs transition-colors ${
+                          category === cat.value
+                            ? 'bg-blue-600/20 text-blue-500 border border-blue-500/30'
+                            : `${theme.buttonMuted} border hover:opacity-80`
+                        }`}
+                      >
+                        {cat.emoji}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Severity buttons */}
+                  <div className="flex gap-1">
+                    {severities.map((sev) => (
+                      <button
+                        key={sev.value}
+                        onClick={() => setSeverity(sev.value)}
+                        className={`flex-1 py-1 rounded text-xs transition-colors ${
+                          severity === sev.value
+                            ? `${isDark ? 'bg-zinc-700' : 'bg-gray-200'} ${theme.text} font-medium`
+                            : `${theme.textMuted} hover:opacity-80`
+                        }`}
+                      >
+                        <div className="flex items-center justify-center gap-1">
+                          <div className={`w-1.5 h-1.5 rounded-full ${sev.color}`} />
+                          {sev.label}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Textarea */}
+                  <textarea
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    placeholder="Describe your feedback..."
+                    className={`w-full h-14 px-2.5 py-2 text-xs ${theme.input} rounded-lg resize-none focus:outline-none focus:ring-1 focus:ring-blue-500 ${theme.text}`}
+                  />
+
+                  {/* Element picker hint */}
+                  <button className={`w-full py-1.5 border border-dashed ${isDark ? 'border-zinc-600' : 'border-gray-300'} rounded-lg text-xs ${theme.textMuted} hover:opacity-80 transition-colors flex items-center justify-center gap-1.5`}>
+                    <Target className="w-3 h-3" />
+                    Target element
+                  </button>
+
+                  {/* Submit button */}
+                  <button
+                    onClick={handleSubmit}
+                    disabled={!text.trim()}
+                    className={`w-full h-8 text-xs rounded-md font-medium transition-colors ${
+                      text.trim()
+                        ? `${theme.button} hover:opacity-90`
+                        : `${isDark ? 'bg-zinc-700 text-zinc-500' : 'bg-gray-200 text-gray-400'} cursor-not-allowed`
+                    } flex items-center justify-center gap-1.5`}
+                  >
+                    <Send className="w-3 h-3" />
+                    Submit
                   </button>
                 </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-                {/* Category buttons */}
-                <div className="flex gap-1">
-                  {categories.map((cat) => (
-                    <button
-                      key={cat.value}
-                      onClick={() => setCategory(cat.value)}
-                      className={`flex-1 py-1.5 rounded-md text-xs transition-colors ${
-                        category === cat.value
-                          ? 'bg-primary/10 text-primary border border-primary/30'
-                          : 'bg-muted/50 text-muted-foreground border border-transparent hover:bg-muted'
-                      }`}
-                    >
-                      {cat.emoji}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Severity buttons */}
-                <div className="flex gap-1">
-                  {severities.map((sev) => (
-                    <button
-                      key={sev.value}
-                      onClick={() => setSeverity(sev.value)}
-                      className={`flex-1 py-1 rounded text-xs transition-colors ${
-                        severity === sev.value
-                          ? 'bg-muted text-foreground font-medium'
-                          : 'text-muted-foreground hover:text-foreground'
-                      }`}
-                    >
-                      <div className="flex items-center justify-center gap-1">
-                        <div className={`w-1.5 h-1.5 rounded-full ${sev.color}`} />
-                        {sev.label}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-
-                {/* Textarea */}
-                <textarea
-                  value={text}
-                  onChange={(e) => setText(e.target.value)}
-                  placeholder="Describe your feedback..."
-                  className="w-full h-14 px-2.5 py-2 text-xs bg-muted/30 border border-border rounded-lg resize-none focus:outline-none focus:ring-1 focus:ring-primary"
-                />
-
-                {/* Element picker hint */}
-                <button className="w-full py-1.5 border border-dashed border-border rounded-lg text-xs text-muted-foreground hover:text-foreground hover:border-primary/50 transition-colors flex items-center justify-center gap-1.5">
-                  <Target className="w-3 h-3" />
-                  Target element
-                </button>
-
-                {/* Submit button */}
-                <Button
-                  onClick={handleSubmit}
-                  disabled={!text.trim()}
-                  className="w-full h-8 text-xs"
-                  size="sm"
-                >
-                  <Send className="w-3 h-3 mr-1.5" />
-                  Submit
-                </Button>
-              </div>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Label */}
-      <div className="absolute top-3 left-3">
-        <Badge variant="secondary" className="text-[10px] bg-background/80 backdrop-blur">
-          Interactive Preview
-        </Badge>
+        {/* Label */}
+        <div className="absolute top-3 left-3">
+          <Badge variant="secondary" className={`text-[10px] ${isDark ? 'bg-zinc-800/80' : 'bg-white/80'} backdrop-blur`}>
+            Interactive Preview
+          </Badge>
+        </div>
       </div>
     </div>
   );
