@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { FeedbackWidget } from '@/feedback';
-import { MessageSquare, Zap, Shield, Sparkles, ArrowRight, MousePointer2, CreditCard, Clock, Bot, Copy, Check, Code, Brain, Download, BookOpen } from 'lucide-react';
+import { MessageSquare, Zap, Shield, Sparkles, ArrowRight, MousePointer2, CreditCard, Clock, Bot, Copy, Check, Code, Brain, Download, BookOpen, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AccuracyTest from '@/components/AccuracyTest';
 import SetupGuide from '@/components/SetupGuide';
+import SetupVerification from '@/components/SetupVerification';
 
 const Index = () => {
   const [copied, setCopied] = useState<string | null>(null);
@@ -76,7 +77,7 @@ const config = createConfig({
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
             One component. Zero configuration. Add AI-powered feedback collection to your app in under a minute.
           </p>
-          <div className="flex flex-wrap justify-center gap-4">
+          <div className="flex flex-wrap justify-center gap-4 mb-8">
             <Button size="lg" asChild>
               <a href="#implementation">
                 <Download className="w-4 h-4 mr-2" />
@@ -94,6 +95,11 @@ const config = createConfig({
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Link>
             </Button>
+          </div>
+          
+          {/* Quick Setup Verification */}
+          <div className="max-w-xl mx-auto">
+            <SetupVerification />
           </div>
         </div>
       </header>
