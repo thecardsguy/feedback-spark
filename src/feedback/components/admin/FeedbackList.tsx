@@ -77,9 +77,10 @@ interface FeedbackListItemProps {
   item: FeedbackListProps['items'][0];
   isSelected: boolean;
   onClick: () => void;
+  showAIBadge?: boolean;
 }
 
-function FeedbackListItem({ item, isSelected, onClick }: FeedbackListItemProps) {
+function FeedbackListItem({ item, isSelected, onClick, showAIBadge }: FeedbackListItemProps) {
   const categoryStyle = CATEGORY_STYLES[item.category] || CATEGORY_STYLES.other;
   const severityStyle = SEVERITY_STYLES[item.severity] || SEVERITY_STYLES.medium;
   const statusStyle = STATUS_STYLES[item.status] || STATUS_STYLES.pending;
@@ -119,6 +120,19 @@ function FeedbackListItem({ item, isSelected, onClick }: FeedbackListItemProps) 
           >
             {item.status}
           </span>
+
+          {/* AI badge */}
+          {showAIBadge && item.ai_summary && (
+            <span
+              style={{
+                ...styles.badge,
+                backgroundColor: '#f0e7ff',
+                color: '#7c3aed',
+              }}
+            >
+              ✨ AI
+            </span>
+          )}
         </div>
 
         {/* Severity indicator */}
@@ -155,7 +169,7 @@ function FeedbackListItem({ item, isSelected, onClick }: FeedbackListItemProps) 
 // FEEDBACK LIST COMPONENT
 // ============================================
 
-export function FeedbackList({ items, onSelect, selectedId, isLoading }: FeedbackListProps) {
+export function FeedbackList({ items, onSelect, selectedId, isLoading, showAIBadge }: FeedbackListProps & { showAIBadge?: boolean }) {
   if (isLoading) {
     return <LoadingSkeleton />;
   }
@@ -172,6 +186,7 @@ export function FeedbackList({ items, onSelect, selectedId, isLoading }: Feedbac
           item={item}
           isSelected={selectedId === item.id}
           onClick={() => onSelect(item)}
+          showAIBadge={showAIBadge}
         />
       ))}
     </div>

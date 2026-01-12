@@ -44,6 +44,23 @@ const Icons = {
       <path d="M16 16h5v5" />
     </svg>
   ),
+  Sparkles: () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3z" />
+      <path d="M5 19l.5 1.5L7 21l-1.5.5L5 23l-.5-1.5L3 21l1.5-.5L5 19z" />
+      <path d="M19 13l.5 1.5L21 15l-1.5.5L19 17l-.5-1.5L17 15l1.5-.5L19 13z" />
+    </svg>
+  ),
+  List: () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <line x1="8" y1="6" x2="21" y2="6" />
+      <line x1="8" y1="12" x2="21" y2="12" />
+      <line x1="8" y1="18" x2="21" y2="18" />
+      <line x1="3" y1="6" x2="3.01" y2="6" />
+      <line x1="3" y1="12" x2="3.01" y2="12" />
+      <line x1="3" y1="18" x2="3.01" y2="18" />
+    </svg>
+  ),
 };
 
 // ============================================
@@ -75,6 +92,8 @@ const SEVERITY_OPTIONS: { value: FeedbackSeverity | ''; label: string }[] = [
   { value: 'low', label: '🟢 Low' },
 ];
 
+type TabType = 'all' | 'ai-enhanced';
+
 // ============================================
 // FEEDBACK DASHBOARD COMPONENT
 // ============================================
@@ -95,19 +114,30 @@ export function FeedbackDashboard({ config }: FeedbackDashboardProps) {
   } = useFeedbackFilters(items);
 
   const [selectedItem, setSelectedItem] = useState<FeedbackItem | null>(null);
+  const [activeTab, setActiveTab] = useState<TabType>('all');
+
+  // Filter items based on active tab
+  const displayItems = activeTab === 'ai-enhanced'
+    ? filteredItems.filter(item => item.ai_summary || item.ai_category || item.ai_question_for_dev)
+    : filteredItems;
+
+  const aiEnhancedCount = items.filter(item => item.ai_summary || item.ai_category || item.ai_question_for_dev).length;
 
   const handleExport = useCallback(() => {
     if (!config.admin.exportEnabled) return;
 
     const csvContent = [
-      ['ID', 'Category', 'Severity', 'Status', 'Feedback', 'Page', 'Created'].join(','),
-      ...filteredItems.map(item =>
+      ['ID', 'Category', 'Severity', 'Status', 'Feedback', 'AI Summary', 'AI Category', 'AI Question', 'Page', 'Created'].join(','),
+      ...displayItems.map(item =>
         [
           item.id,
           item.category,
           item.severity,
           item.status,
           `"${item.raw_text.replace(/"/g, '""')}"`,
+          `"${(item.ai_summary || '').replace(/"/g, '""')}"`,
+          item.ai_category || '',
+          `"${(item.ai_question_for_dev || '').replace(/"/g, '""')}"`,
           item.page_url || '',
           item.created_at,
         ].join(',')
@@ -118,10 +148,10 @@ export function FeedbackDashboard({ config }: FeedbackDashboardProps) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `feedback-export-${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = `feedback-export-${activeTab}-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-  }, [filteredItems, config.admin.exportEnabled]);
+  }, [displayItems, config.admin.exportEnabled, activeTab]);
 
   const handleStatusChange = useCallback(async (status: FeedbackStatus) => {
     if (!selectedItem) return;
@@ -138,7 +168,7 @@ export function FeedbackDashboard({ config }: FeedbackDashboardProps) {
         <div>
           <h1 style={styles.title}>Feedback Dashboard</h1>
           <p style={styles.subtitle}>
-            {filteredItems.length} feedback item{filteredItems.length !== 1 ? 's' : ''}
+            {displayItems.length} feedback item{displayItems.length !== 1 ? 's' : ''}
             {hasActiveFilters && ` (filtered from ${items.length})`}
           </p>
         </div>
@@ -155,10 +185,39 @@ export function FeedbackDashboard({ config }: FeedbackDashboardProps) {
         </div>
       </div>
 
+      {/* Tabs */}
+      <div style={styles.tabsContainer}>
+        <button
+          onClick={() => setActiveTab('all')}
+          style={{
+            ...styles.tab,
+            ...(activeTab === 'all' ? styles.tabActive : {}),
+          }}
+        >
+          <Icons.List />
+          <span>All Feedback</span>
+          <span style={styles.tabBadge}>{items.length}</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('ai-enhanced')}
+          style={{
+            ...styles.tab,
+            ...(activeTab === 'ai-enhanced' ? styles.tabActive : {}),
+          }}
+        >
+          <Icons.Sparkles />
+          <span>AI Enhanced</span>
+          <span style={{
+            ...styles.tabBadge,
+            ...(activeTab === 'ai-enhanced' ? styles.tabBadgeAI : {}),
+          }}>{aiEnhancedCount}</span>
+        </button>
+      </div>
+
       {/* Statistics (Standard/Pro tier) */}
       {config.admin.showStats && (
         <div style={styles.statsSection}>
-          <FeedbackStats items={items} />
+          <FeedbackStats items={activeTab === 'ai-enhanced' ? displayItems : items} />
         </div>
       )}
 
@@ -227,12 +286,24 @@ export function FeedbackDashboard({ config }: FeedbackDashboardProps) {
       <div style={styles.content}>
         {/* Feedback list */}
         <div style={styles.listPane}>
-          <FeedbackList
-            items={filteredItems}
-            onSelect={setSelectedItem}
-            selectedId={selectedItem?.id}
-            isLoading={isLoading}
-          />
+          {activeTab === 'ai-enhanced' && displayItems.length === 0 ? (
+            <div style={styles.emptyState}>
+              <Icons.Sparkles />
+              <h3 style={styles.emptyTitle}>No AI-Enhanced Feedback Yet</h3>
+              <p style={styles.emptyText}>
+                AI-enhanced feedback will appear here when submitted through the Pro tier endpoint.
+                These items include AI-generated summaries, categories, and developer questions.
+              </p>
+            </div>
+          ) : (
+            <FeedbackList
+              items={displayItems}
+              onSelect={setSelectedItem}
+              selectedId={selectedItem?.id}
+              isLoading={isLoading}
+              showAIBadge={activeTab === 'ai-enhanced'}
+            />
+          )}
         </div>
 
         {/* Detail pane */}
@@ -297,6 +368,43 @@ const styles: Record<string, React.CSSProperties> = {
     color: '#4b5563',
     transition: 'all 0.15s',
   },
+  tabsContainer: {
+    display: 'flex',
+    gap: 8,
+    borderBottom: '1px solid #e5e7eb',
+    paddingBottom: 0,
+  },
+  tab: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+    padding: '12px 16px',
+    border: 'none',
+    borderBottom: '2px solid transparent',
+    backgroundColor: 'transparent',
+    color: '#6b7280',
+    fontSize: 14,
+    fontWeight: 500,
+    cursor: 'pointer',
+    transition: 'all 0.15s',
+    marginBottom: -1,
+  },
+  tabActive: {
+    color: '#2563eb',
+    borderBottomColor: '#2563eb',
+  },
+  tabBadge: {
+    padding: '2px 8px',
+    borderRadius: 10,
+    backgroundColor: '#f3f4f6',
+    color: '#4b5563',
+    fontSize: 12,
+    fontWeight: 600,
+  },
+  tabBadgeAI: {
+    backgroundColor: '#ede9fe',
+    color: '#7c3aed',
+  },
   statsSection: {
     padding: 20,
     backgroundColor: '#f9fafb',
@@ -357,6 +465,30 @@ const styles: Record<string, React.CSSProperties> = {
     position: 'sticky',
     top: 24,
     alignSelf: 'start',
+  },
+  emptyState: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 48,
+    textAlign: 'center',
+    backgroundColor: '#faf5ff',
+    borderRadius: 12,
+    border: '1px dashed #c4b5fd',
+  },
+  emptyTitle: {
+    margin: '16px 0 8px',
+    fontSize: 18,
+    fontWeight: 600,
+    color: '#5b21b6',
+  },
+  emptyText: {
+    margin: 0,
+    fontSize: 14,
+    color: '#7c3aed',
+    maxWidth: 300,
+    lineHeight: 1.5,
   },
 };
 
