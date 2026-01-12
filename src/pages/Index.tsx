@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { FeedbackWidget } from '@/feedback';
-import { MessageSquare, Zap, Shield, Sparkles, ArrowRight, MousePointer2, CreditCard, Clock, Bot, Copy, Check, Code, Brain } from 'lucide-react';
+import { MessageSquare, Zap, Shield, Sparkles, ArrowRight, MousePointer2, CreditCard, Clock, Bot, Copy, Check, Code, Brain, Download, BookOpen } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AccuracyTest from '@/components/AccuracyTest';
+import SetupGuide from '@/components/SetupGuide';
 
 const Index = () => {
   const [copied, setCopied] = useState<string | null>(null);
@@ -77,14 +78,20 @@ const config = createConfig({
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Button size="lg" asChild>
-              <Link to="/admin">
-                View Admin Dashboard
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Link>
+              <a href="#implementation">
+                <Download className="w-4 h-4 mr-2" />
+                Get the Template
+              </a>
             </Button>
             <Button size="lg" variant="outline" asChild>
               <Link to="/demo">
                 Try Live Demo
+              </Link>
+            </Button>
+            <Button size="lg" variant="ghost" asChild>
+              <Link to="/admin">
+                View Admin
+                <ArrowRight className="w-4 h-4 ml-2" />
               </Link>
             </Button>
           </div>
@@ -339,6 +346,13 @@ const config = createConfig({
         </div>
       </section>
 
+      {/* Implementation Guide */}
+      <section id="implementation" className="border-t border-border bg-background">
+        <div className="max-w-6xl mx-auto px-6 py-20">
+          <SetupGuide />
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="border-t border-border py-8">
         <div className="max-w-6xl mx-auto px-6 text-center text-muted-foreground">
@@ -348,7 +362,7 @@ const config = createConfig({
             {' • '}
             <Link to="/demo" className="text-primary hover:underline">Demo</Link>
             {' • '}
-            <Link to="/setup" className="text-primary hover:underline">Setup</Link>
+            <Link to="/setup" className="text-primary hover:underline">Setup Wizard</Link>
           </p>
         </div>
       </footer>
