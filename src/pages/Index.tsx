@@ -1,8 +1,9 @@
 import { FeedbackButton } from '@/feedback';
 import { STANDARD_PRESET } from '@/feedback/config/feedback.config';
-import { MessageSquare, Zap, Shield, Sparkles, ArrowRight, MousePointer2, CreditCard, Clock, Bot } from 'lucide-react';
+import { MessageSquare, Zap, Shield, Sparkles, ArrowRight, MousePointer2, CreditCard, Clock, Bot, Play } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import elementPickerDemo from '@/assets/element-picker-demo.mp4';
 
 const Index = () => {
   const feedbackConfig = {
@@ -107,6 +108,28 @@ const Index = () => {
                 you can paste directly into Lovable for immediate implementation.
               </p>
             </div>
+          </div>
+
+          {/* Demo Video */}
+          <div className="mt-12 rounded-2xl overflow-hidden border border-border bg-card shadow-lg">
+            <div className="p-4 border-b border-border bg-muted/30">
+              <div className="flex items-center gap-2">
+                <Play className="w-5 h-5 text-primary" />
+                <h3 className="text-lg font-semibold text-card-foreground">
+                  See It In Action
+                </h3>
+              </div>
+            </div>
+            <video 
+              className="w-full aspect-video" 
+              autoPlay 
+              loop 
+              muted 
+              playsInline
+            >
+              <source src={elementPickerDemo} type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
           </div>
 
           {/* Workflow Explanation */}
