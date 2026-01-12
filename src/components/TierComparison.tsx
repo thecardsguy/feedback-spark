@@ -6,7 +6,7 @@
  */
 
 import { useRef, useState } from 'react';
-import { Check, X, Sparkles, Download, Image, FileText, Settings2 } from 'lucide-react';
+import { Check, X, Sparkles, Download, Image, FileText, Settings2, Monitor, Printer, Presentation } from 'lucide-react';
 import { getHtml2Canvas, getJsPDF } from '@/lib/vendorScripts';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -84,6 +84,35 @@ const PAGE_SIZES = {
   a3: { label: 'A3 (297 × 420mm)', width: 842, height: 1191 },
 };
 
+type PresetKey = 'web' | 'print' | 'presentation' | 'custom';
+
+const EXPORT_PRESETS: Record<PresetKey, { label: string; icon: typeof Monitor; description: string; settings: ExportSettings }> = {
+  web: {
+    label: 'Web',
+    icon: Monitor,
+    description: 'Optimized for screens and sharing online',
+    settings: { scale: 2, pageSize: 'auto', includeBackground: true },
+  },
+  print: {
+    label: 'Print',
+    icon: Printer,
+    description: 'High quality for physical printing',
+    settings: { scale: 3, pageSize: 'a4', includeBackground: true },
+  },
+  presentation: {
+    label: 'Presentation',
+    icon: Presentation,
+    description: 'Large format for slides and projectors',
+    settings: { scale: 4, pageSize: 'a3', includeBackground: true },
+  },
+  custom: {
+    label: 'Custom',
+    icon: Settings2,
+    description: 'Configure your own settings',
+    settings: { scale: 2, pageSize: 'auto', includeBackground: true },
+  },
+};
+
 const FeatureCheck = ({ enabled }: { enabled: boolean }) => (
   enabled ? (
     <div className="flex items-center justify-center">
@@ -104,11 +133,22 @@ const TierComparison = () => {
   const tableRef = useRef<HTMLDivElement>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [exportSettings, setExportSettings] = useState<ExportSettings>({
-    scale: 2,
-    pageSize: 'auto',
-    includeBackground: true,
-  });
+  const [activePreset, setActivePreset] = useState<PresetKey>('web');
+  const [exportSettings, setExportSettings] = useState<ExportSettings>(
+    EXPORT_PRESETS.web.settings
+  );
+
+  const applyPreset = (presetKey: PresetKey) => {
+    setActivePreset(presetKey);
+    if (presetKey !== 'custom') {
+      setExportSettings(EXPORT_PRESETS[presetKey].settings);
+    }
+  };
+
+  const handleSettingChange = (newSettings: Partial<ExportSettings>) => {
+    setExportSettings((prev) => ({ ...prev, ...newSettings }));
+    setActivePreset('custom');
+  };
 
   const exportAsImage = async () => {
     if (!tableRef.current) return;
@@ -218,11 +258,48 @@ const TierComparison = () => {
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-6 py-4">
+                  {/* Preset Selection */}
+                  <div className="space-y-3">
+                    <Label>Quick Presets</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {(Object.entries(EXPORT_PRESETS) as [PresetKey, typeof EXPORT_PRESETS.web][]).map(([key, preset]) => {
+                        const Icon = preset.icon;
+                        const isActive = activePreset === key;
+                        return (
+                          <button
+                            key={key}
+                            onClick={() => applyPreset(key)}
+                            className={`flex items-start gap-3 p-3 rounded-lg border text-left transition-all ${
+                              isActive
+                                ? 'border-primary bg-primary/5 ring-1 ring-primary'
+                                : 'border-border hover:border-primary/50 hover:bg-muted/50'
+                            }`}
+                          >
+                            <div className={`mt-0.5 ${isActive ? 'text-primary' : 'text-muted-foreground'}`}>
+                              <Icon className="w-4 h-4" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className={`text-sm font-medium ${isActive ? 'text-primary' : 'text-foreground'}`}>
+                                {preset.label}
+                              </p>
+                              <p className="text-xs text-muted-foreground truncate">
+                                {preset.description}
+                              </p>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="border-t border-border" />
+
+                  {/* Manual Settings */}
                   <div className="space-y-2">
                     <Label htmlFor="scale">Resolution Scale</Label>
                     <Select
                       value={String(exportSettings.scale)}
-                      onValueChange={(v) => setExportSettings({ ...exportSettings, scale: Number(v) })}
+                      onValueChange={(v) => handleSettingChange({ scale: Number(v) })}
                     >
                       <SelectTrigger id="scale" className="bg-background">
                         <SelectValue />
@@ -241,7 +318,7 @@ const TierComparison = () => {
                     <Label htmlFor="pageSize">PDF Page Size</Label>
                     <Select
                       value={exportSettings.pageSize}
-                      onValueChange={(v) => setExportSettings({ ...exportSettings, pageSize: v as ExportSettings['pageSize'] })}
+                      onValueChange={(v) => handleSettingChange({ pageSize: v as ExportSettings['pageSize'] })}
                     >
                       <SelectTrigger id="pageSize" className="bg-background">
                         <SelectValue />
@@ -263,7 +340,7 @@ const TierComparison = () => {
                     <Switch
                       id="background"
                       checked={exportSettings.includeBackground}
-                      onCheckedChange={(checked) => setExportSettings({ ...exportSettings, includeBackground: checked })}
+                      onCheckedChange={(checked) => handleSettingChange({ includeBackground: checked })}
                     />
                   </div>
                 </div>
