@@ -2,11 +2,22 @@
  * Tier Comparison Table
  * 
  * Visual comparison of Basic, Standard, and Pro tiers with checkmarks.
+ * Includes export functionality for image and PDF downloads.
  */
 
-import { Check, X, Sparkles } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { Check, X, Sparkles, Download, Image, FileText } from 'lucide-react';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   Table,
   TableBody,
@@ -60,21 +71,86 @@ const FeatureCheck = ({ enabled }: { enabled: boolean }) => (
 );
 
 export function TierComparison() {
+  const tableRef = useRef<HTMLDivElement>(null);
+  const [isExporting, setIsExporting] = useState(false);
+
+  const exportAsImage = async () => {
+    if (!tableRef.current) return;
+    setIsExporting(true);
+    try {
+      const canvas = await html2canvas(tableRef.current, {
+        backgroundColor: '#ffffff',
+        scale: 2,
+      });
+      const link = document.createElement('a');
+      link.download = 'tier-comparison.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (error) {
+      console.error('Error exporting image:', error);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const exportAsPDF = async () => {
+    if (!tableRef.current) return;
+    setIsExporting(true);
+    try {
+      const canvas = await html2canvas(tableRef.current, {
+        backgroundColor: '#ffffff',
+        scale: 2,
+      });
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'px',
+        format: [canvas.width, canvas.height],
+      });
+      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+      pdf.save('tier-comparison.pdf');
+    } catch (error) {
+      console.error('Error exporting PDF:', error);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <Card className="overflow-hidden bg-card/80 backdrop-blur border-border">
       <div className="p-6 border-b border-border">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-            <Sparkles className="w-5 h-5 text-primary" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-foreground">Feature Comparison</h3>
+              <p className="text-sm text-muted-foreground">See what's included in each tier</p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-lg font-semibold text-foreground">Feature Comparison</h3>
-            <p className="text-sm text-muted-foreground">See what's included in each tier</p>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" disabled={isExporting}>
+                <Download className="w-4 h-4 mr-2" />
+                {isExporting ? 'Exporting...' : 'Export'}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={exportAsImage}>
+                <Image className="w-4 h-4 mr-2" />
+                Download as Image (PNG)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={exportAsPDF}>
+                <FileText className="w-4 h-4 mr-2" />
+                Download as PDF
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
-      <div className="overflow-x-auto">
+      <div ref={tableRef} className="overflow-x-auto bg-background">
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
