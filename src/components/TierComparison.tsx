@@ -7,8 +7,7 @@
 
 import { useRef, useState } from 'react';
 import { Check, X, Sparkles, Download, Image, FileText } from 'lucide-react';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
+import { getHtml2Canvas, getJsPDF } from '@/lib/vendorScripts';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -70,7 +69,7 @@ const FeatureCheck = ({ enabled }: { enabled: boolean }) => (
   )
 );
 
-export function TierComparison() {
+const TierComparison = () => {
   const tableRef = useRef<HTMLDivElement>(null);
   const [isExporting, setIsExporting] = useState(false);
 
@@ -78,6 +77,7 @@ export function TierComparison() {
     if (!tableRef.current) return;
     setIsExporting(true);
     try {
+      const html2canvas = await getHtml2Canvas();
       const canvas = await html2canvas(tableRef.current, {
         backgroundColor: '#ffffff',
         scale: 2,
@@ -97,12 +97,16 @@ export function TierComparison() {
     if (!tableRef.current) return;
     setIsExporting(true);
     try {
+      const html2canvas = await getHtml2Canvas();
+      const JsPDF = await getJsPDF();
+
       const canvas = await html2canvas(tableRef.current, {
         backgroundColor: '#ffffff',
         scale: 2,
       });
+
       const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({
+      const pdf = new JsPDF({
         orientation: 'landscape',
         unit: 'px',
         format: [canvas.width, canvas.height],
@@ -207,6 +211,6 @@ export function TierComparison() {
       </div>
     </Card>
   );
-}
+};
 
 export default TierComparison;
