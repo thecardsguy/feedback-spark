@@ -59,19 +59,16 @@ interface ExportSettings {
 }
 
 const FEATURES: Feature[] = [
-  // User Features
   { name: 'Floating Button', description: 'Customizable feedback trigger', basic: true, standard: true, pro: true },
   { name: 'Category Selection', description: 'Bug, Feature, UI/UX, etc.', basic: true, standard: true, pro: true },
   { name: 'Element Picker', description: 'Click to target elements', basic: true, standard: true, pro: true },
   { name: 'Anonymous Submission', description: 'No login required', basic: true, standard: true, pro: true },
   { name: 'Severity Levels', description: 'Low, Medium, High, Critical', basic: false, standard: true, pro: true },
-  // Admin Features
   { name: 'Admin Dashboard', description: 'View and manage feedback', basic: false, standard: true, pro: true },
   { name: 'Status Updates', description: 'Pending → Reviewed → Resolved', basic: false, standard: true, pro: true },
   { name: 'Statistics', description: 'Charts and trend analysis', basic: false, standard: true, pro: true },
   { name: 'Export Data', description: 'Download as CSV/JSON', basic: false, standard: true, pro: true },
   { name: 'Copy to Clipboard', description: 'Quick copy for AI prompts', basic: false, standard: true, pro: true },
-  // AI Features
   { name: 'AI Summarization', description: 'Auto-summarize feedback', basic: false, standard: false, pro: true },
   { name: 'AI Categorization', description: 'Smart category detection', basic: false, standard: false, pro: true },
   { name: 'Developer Prompts', description: 'AI-generated fix prompts', basic: false, standard: false, pro: true },
@@ -116,14 +113,14 @@ const EXPORT_PRESETS: Record<PresetKey, { label: string; icon: typeof Monitor; d
 const FeatureCheck = ({ enabled }: { enabled: boolean }) => (
   enabled ? (
     <div className="flex items-center justify-center">
-      <div className="w-6 h-6 rounded-full bg-green-500/10 flex items-center justify-center">
+      <div className="w-7 h-7 rounded-full bg-green-500/10 flex items-center justify-center">
         <Check className="w-4 h-4 text-green-500" />
       </div>
     </div>
   ) : (
     <div className="flex items-center justify-center">
-      <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center">
-        <X className="w-4 h-4 text-muted-foreground/50" />
+      <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
+        <X className="w-4 h-4 text-muted-foreground/40" />
       </div>
     </div>
   )
@@ -191,7 +188,7 @@ const TierComparison = () => {
       };
 
       if (pageConfig.width && pageConfig.height) {
-        pdfOptions.format = [pageConfig.height, pageConfig.width]; // landscape swap
+        pdfOptions.format = [pageConfig.height, pageConfig.width];
       } else {
         pdfOptions.format = [canvas.width, canvas.height];
       }
@@ -199,8 +196,7 @@ const TierComparison = () => {
       const pdf = new JsPDF(pdfOptions);
       
       if (pageConfig.width && pageConfig.height) {
-        // Scale image to fit page
-        const pdfWidth = pageConfig.height; // landscape
+        const pdfWidth = pageConfig.height;
         const pdfHeight = pageConfig.width;
         const imgRatio = canvas.width / canvas.height;
         const pdfRatio = pdfWidth / pdfHeight;
@@ -231,11 +227,11 @@ const TierComparison = () => {
   };
 
   return (
-    <Card className="overflow-hidden bg-card/80 backdrop-blur border-border">
-      <div className="p-6 border-b border-border">
-        <div className="flex items-center justify-between">
+    <Card className="overflow-hidden glass border-border/50">
+      <div className="p-6 border-b border-border/50">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+            <div className="feature-icon-primary">
               <Sparkles className="w-5 h-5 text-primary" />
             </div>
             <div>
@@ -246,11 +242,11 @@ const TierComparison = () => {
           <div className="flex items-center gap-2">
             <Dialog open={showSettings} onOpenChange={setShowSettings}>
               <DialogTrigger asChild>
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" className="w-9 h-9 p-0">
                   <Settings2 className="w-4 h-4" />
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-md bg-background border-border">
+              <DialogContent className="sm:max-w-md glass">
                 <DialogHeader>
                   <DialogTitle>Export Settings</DialogTitle>
                   <DialogDescription>
@@ -258,7 +254,6 @@ const TierComparison = () => {
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-6 py-4">
-                  {/* Preset Selection */}
                   <div className="space-y-3">
                     <Label>Quick Presets</Label>
                     <div className="grid grid-cols-2 gap-2">
@@ -269,9 +264,9 @@ const TierComparison = () => {
                           <button
                             key={key}
                             onClick={() => applyPreset(key)}
-                            className={`flex items-start gap-3 p-3 rounded-lg border text-left transition-all ${
+                            className={`flex items-start gap-3 p-3 rounded-xl border text-left transition-all ${
                               isActive
-                                ? 'border-primary bg-primary/5 ring-1 ring-primary'
+                                ? 'border-primary bg-primary/5 ring-2 ring-primary/20'
                                 : 'border-border hover:border-primary/50 hover:bg-muted/50'
                             }`}
                           >
@@ -292,19 +287,18 @@ const TierComparison = () => {
                     </div>
                   </div>
 
-                  <div className="border-t border-border" />
+                  <div className="border-t border-border/50" />
 
-                  {/* Manual Settings */}
                   <div className="space-y-2">
                     <Label htmlFor="scale">Resolution Scale</Label>
                     <Select
                       value={String(exportSettings.scale)}
                       onValueChange={(v) => handleSettingChange({ scale: Number(v) })}
                     >
-                      <SelectTrigger id="scale" className="bg-background">
+                      <SelectTrigger id="scale">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent className="bg-popover border-border">
+                      <SelectContent>
                         <SelectItem value="1">1x (Standard)</SelectItem>
                         <SelectItem value="2">2x (High quality)</SelectItem>
                         <SelectItem value="3">3x (Very high)</SelectItem>
@@ -320,10 +314,10 @@ const TierComparison = () => {
                       value={exportSettings.pageSize}
                       onValueChange={(v) => handleSettingChange({ pageSize: v as ExportSettings['pageSize'] })}
                     >
-                      <SelectTrigger id="pageSize" className="bg-background">
+                      <SelectTrigger id="pageSize">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent className="bg-popover border-border">
+                      <SelectContent>
                         {Object.entries(PAGE_SIZES).map(([key, { label }]) => (
                           <SelectItem key={key} value={key}>{label}</SelectItem>
                         ))}
@@ -354,18 +348,18 @@ const TierComparison = () => {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" disabled={isExporting}>
-                  <Download className="w-4 h-4 mr-2" />
+                <Button variant="outline" size="sm" disabled={isExporting} className="gap-2">
+                  <Download className="w-4 h-4" />
                   {isExporting ? 'Exporting...' : 'Export'}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-popover border-border">
-                <DropdownMenuItem onClick={exportAsImage}>
-                  <Image className="w-4 h-4 mr-2" />
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={exportAsImage} className="gap-2">
+                  <Image className="w-4 h-4" />
                   Download as Image (PNG)
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={exportAsPDF}>
-                  <FileText className="w-4 h-4 mr-2" />
+                <DropdownMenuItem onClick={exportAsPDF} className="gap-2">
+                  <FileText className="w-4 h-4" />
                   Download as PDF
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -377,23 +371,23 @@ const TierComparison = () => {
       <div ref={tableRef} className="overflow-x-auto bg-background">
         <Table>
           <TableHeader>
-            <TableRow className="hover:bg-transparent">
-              <TableHead className="w-[300px]">Feature</TableHead>
-              <TableHead className="text-center w-[120px]">
-                <div className="flex flex-col items-center gap-1">
-                  <span>Basic</span>
+            <TableRow className="hover:bg-transparent border-b border-border/50">
+              <TableHead className="w-[280px] py-4">Feature</TableHead>
+              <TableHead className="text-center w-[120px] py-4">
+                <div className="flex flex-col items-center gap-1.5">
+                  <span className="font-medium">Basic</span>
                   <Badge variant="outline" className="text-[10px] font-normal">Free</Badge>
                 </div>
               </TableHead>
-              <TableHead className="text-center w-[120px]">
-                <div className="flex flex-col items-center gap-1">
+              <TableHead className="text-center w-[120px] py-4 bg-primary/5">
+                <div className="flex flex-col items-center gap-1.5">
                   <span className="text-primary font-semibold">Standard</span>
-                  <Badge className="text-[10px] font-normal bg-primary/10 text-primary border-primary/20">Popular</Badge>
+                  <Badge className="text-[10px] font-normal bg-primary/10 text-primary border-primary/20 hover:bg-primary/10">Popular</Badge>
                 </div>
               </TableHead>
-              <TableHead className="text-center w-[120px]">
-                <div className="flex flex-col items-center gap-1">
-                  <span>Pro</span>
+              <TableHead className="text-center w-[120px] py-4">
+                <div className="flex flex-col items-center gap-1.5">
+                  <span className="font-medium">Pro</span>
                   <Badge variant="secondary" className="text-[10px] font-normal">+ AI</Badge>
                 </div>
               </TableHead>
@@ -401,30 +395,34 @@ const TierComparison = () => {
           </TableHeader>
           <TableBody>
             {FEATURES.map((feature, index) => (
-              <TableRow key={feature.name} className={index % 2 === 0 ? 'bg-muted/20' : ''}>
-                <TableCell>
+              <TableRow key={feature.name} className={`hover:bg-muted/30 transition-colors ${index % 2 === 0 ? 'bg-muted/10' : ''}`}>
+                <TableCell className="py-4">
                   <div>
                     <p className="font-medium text-foreground">{feature.name}</p>
                     <p className="text-xs text-muted-foreground">{feature.description}</p>
                   </div>
                 </TableCell>
-                <TableCell><FeatureCheck enabled={feature.basic} /></TableCell>
-                <TableCell className="bg-primary/5"><FeatureCheck enabled={feature.standard} /></TableCell>
-                <TableCell><FeatureCheck enabled={feature.pro} /></TableCell>
+                <TableCell className="py-4"><FeatureCheck enabled={feature.basic} /></TableCell>
+                <TableCell className="py-4 bg-primary/5"><FeatureCheck enabled={feature.standard} /></TableCell>
+                <TableCell className="py-4"><FeatureCheck enabled={feature.pro} /></TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </div>
 
-      <div className="p-4 border-t border-border bg-muted/30">
-        <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
+      <div className="p-4 border-t border-border/50 bg-muted/20">
+        <div className="flex items-center justify-center gap-8 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
-            <Check className="w-4 h-4 text-green-500" />
+            <div className="w-6 h-6 rounded-full bg-green-500/10 flex items-center justify-center">
+              <Check className="w-3.5 h-3.5 text-green-500" />
+            </div>
             <span>Included</span>
           </div>
           <div className="flex items-center gap-2">
-            <X className="w-4 h-4 text-muted-foreground/50" />
+            <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center">
+              <X className="w-3.5 h-3.5 text-muted-foreground/40" />
+            </div>
             <span>Not included</span>
           </div>
         </div>

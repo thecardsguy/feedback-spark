@@ -19,7 +19,6 @@ import {
   Brain,
   Target,
   Sparkles,
-  ArrowRight,
   RefreshCw,
 } from 'lucide-react';
 
@@ -133,7 +132,6 @@ export function AccuracyTest() {
             category: scenario.input.category,
             severity: scenario.input.severity,
             page_url: window.location.href,
-            // Note: NOT using demo_mode - this is real AI
           }),
         }
       );
@@ -153,7 +151,6 @@ export function AccuracyTest() {
         };
       }
 
-      // Fetch the created feedback to get AI fields
       const feedbackResponse = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/feedback?id=eq.${data.id}&select=ai_summary,ai_category,ai_question_for_dev`,
         {
@@ -167,12 +164,10 @@ export function AccuracyTest() {
       const feedbackData = await feedbackResponse.json();
       const aiResponse = feedbackData[0] || {};
 
-      // Check category match
       const categoryMatch = scenario.expected.categoryMatch.some(
         expected => aiResponse.ai_category?.toLowerCase().includes(expected.toLowerCase())
       );
 
-      // Check keywords in summary
       const summaryLower = (aiResponse.ai_summary || '').toLowerCase();
       const questionLower = (aiResponse.ai_question_for_dev || '').toLowerCase();
       const combinedText = summaryLower + ' ' + questionLower;
@@ -210,8 +205,6 @@ export function AccuracyTest() {
       setCurrentTest(scenario.id);
       const result = await runSingleTest(scenario);
       setResults(prev => [...prev, result]);
-      
-      // Small delay between tests to avoid rate limiting
       await new Promise(resolve => setTimeout(resolve, 1000));
     }
 
@@ -240,22 +233,37 @@ export function AccuracyTest() {
 
   const accuracy = calculateAccuracy();
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
-      <div className="text-center">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary mb-4">
-          <Brain className="w-4 h-4" />
-          <span className="text-sm font-medium">Real AI Testing</span>
-        </div>
-        <h2 className="text-2xl font-bold text-foreground mb-2">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        className="text-center"
+      >
+        <Badge variant="outline" className="mb-4 px-4 py-1.5 bg-purple-500/10 text-purple-600 border-purple-500/20">
+          <Brain className="w-3.5 h-3.5 mr-2" />
+          Real AI Testing
+        </Badge>
+        <h2 className="text-fluid-lg font-bold text-foreground mb-4">
           Test AI Accuracy
         </h2>
         <p className="text-muted-foreground max-w-lg mx-auto">
           Run real feedback scenarios through the AI system. 
           No mock responses – see true accuracy metrics.
         </p>
-      </div>
+      </motion.div>
 
       {/* Controls */}
       <div className="flex justify-center gap-4">
@@ -263,16 +271,16 @@ export function AccuracyTest() {
           onClick={runAllTests}
           disabled={isRunning}
           size="lg"
-          className="gap-2"
+          className="h-12 gap-2 shadow-lg"
         >
           {isRunning ? (
             <>
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="w-5 h-5 animate-spin" />
               Running Tests...
             </>
           ) : (
             <>
-              <Play className="w-4 h-4" />
+              <Play className="w-5 h-5" />
               Run All Tests
             </>
           )}
@@ -282,9 +290,9 @@ export function AccuracyTest() {
             variant="outline"
             onClick={() => setResults([])}
             size="lg"
-            className="gap-2"
+            className="h-12 gap-2 glass"
           >
-            <RefreshCw className="w-4 h-4" />
+            <RefreshCw className="w-5 h-5" />
             Reset
           </Button>
         )}
@@ -298,33 +306,25 @@ export function AccuracyTest() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
           >
-            <Card className="p-6 bg-card/80 backdrop-blur border-border/50">
-              <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+            <Card className="p-6 glass border-border/50">
+              <h3 className="text-lg font-semibold text-foreground mb-6 flex items-center gap-2">
                 <Target className="w-5 h-5 text-primary" />
                 Accuracy Metrics
               </h3>
-              <div className="grid md:grid-cols-3 gap-6">
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-primary mb-1">
-                    {accuracy.overall}%
+              <div className="grid sm:grid-cols-3 gap-6">
+                {[
+                  { value: accuracy.overall, label: 'Overall Accuracy', color: 'text-primary' },
+                  { value: accuracy.category, label: 'Category Match', color: 'text-blue-500' },
+                  { value: accuracy.keywords, label: 'Keyword Recognition', color: 'text-green-500' },
+                ].map((metric) => (
+                  <div key={metric.label} className="text-center">
+                    <div className={`text-4xl font-bold ${metric.color} mb-2`}>
+                      {metric.value}%
+                    </div>
+                    <div className="text-sm text-muted-foreground mb-2">{metric.label}</div>
+                    <Progress value={metric.value} className="h-2" />
                   </div>
-                  <div className="text-sm text-muted-foreground">Overall Accuracy</div>
-                  <Progress value={accuracy.overall} className="mt-2" />
-                </div>
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-blue-500 mb-1">
-                    {accuracy.category}%
-                  </div>
-                  <div className="text-sm text-muted-foreground">Category Match</div>
-                  <Progress value={accuracy.category} className="mt-2" />
-                </div>
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-green-500 mb-1">
-                    {accuracy.keywords}%
-                  </div>
-                  <div className="text-sm text-muted-foreground">Keyword Recognition</div>
-                  <Progress value={accuracy.keywords} className="mt-2" />
-                </div>
+                ))}
               </div>
             </Card>
           </motion.div>
@@ -332,25 +332,26 @@ export function AccuracyTest() {
       </AnimatePresence>
 
       {/* Test Scenarios */}
-      <div className="grid md:grid-cols-2 gap-4">
-        {TEST_SCENARIOS.map((scenario, index) => {
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+        className="grid sm:grid-cols-2 gap-4"
+      >
+        {TEST_SCENARIOS.map((scenario) => {
           const result = results.find(r => r.scenarioId === scenario.id);
           const isCurrentlyRunning = currentTest === scenario.id;
 
           return (
-            <motion.div
-              key={scenario.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <Card className={`p-4 bg-card/60 backdrop-blur border transition-all ${
-                isCurrentlyRunning ? 'border-primary ring-2 ring-primary/20' : 
+            <motion.div key={scenario.id} variants={itemVariants}>
+              <Card className={`p-5 h-full card-modern transition-all ${
+                isCurrentlyRunning ? 'ring-2 ring-primary border-primary' : 
                 result?.success ? 'border-green-500/30' : 
-                result?.error ? 'border-destructive/30' : 'border-border/50'
+                result?.error ? 'border-destructive/30' : ''
               }`}>
                 <div className="flex items-start justify-between mb-3">
-                  <div>
+                  <div className="flex-1">
                     <h4 className="font-semibold text-foreground flex items-center gap-2">
                       {scenario.name}
                       {isCurrentlyRunning && (
@@ -365,53 +366,54 @@ export function AccuracyTest() {
                     </h4>
                     <p className="text-sm text-muted-foreground">{scenario.description}</p>
                   </div>
-                  <Badge variant="outline" className="text-xs">
+                  <Badge variant="outline" className="text-xs shrink-0 ml-2">
                     {scenario.input.category}
                   </Badge>
                 </div>
 
-                <div className="text-xs text-muted-foreground bg-muted/50 p-2 rounded mb-3 line-clamp-2">
+                <div className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg mb-3 line-clamp-2 border border-border/50">
                   "{scenario.input.raw_text}"
                 </div>
 
                 {result && result.success && (
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2">
+                  <div className="space-y-3 text-sm">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-muted-foreground">AI Category:</span>
-                      <Badge variant={result.categoryMatch ? 'default' : 'secondary'}>
+                      <Badge variant={result.categoryMatch ? 'default' : 'secondary'} className="text-xs">
                         {result.response?.ai_category || 'N/A'}
                       </Badge>
                       {result.categoryMatch && (
-                        <CheckCircle className="w-3 h-3 text-green-500" />
+                        <CheckCircle className="w-3.5 h-3.5 text-green-500" />
                       )}
                     </div>
                     {result.response?.ai_summary && (
                       <div>
-                        <span className="text-muted-foreground">Summary:</span>
-                        <p className="text-foreground text-xs mt-1 line-clamp-2">
+                        <span className="text-muted-foreground text-xs">Summary:</span>
+                        <p className="text-foreground text-xs mt-1 line-clamp-2 leading-relaxed">
                           {result.response.ai_summary}
                         </p>
                       </div>
                     )}
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-muted-foreground text-xs">Keywords found:</span>
-                      {result.keywordsFound.map(kw => (
-                        <Badge key={kw} variant="outline" className="text-xs bg-green-500/10 text-green-600">
-                          {kw}
-                        </Badge>
-                      ))}
-                      {result.keywordsFound.length === 0 && (
+                      <span className="text-muted-foreground text-xs">Keywords:</span>
+                      {result.keywordsFound.length > 0 ? (
+                        result.keywordsFound.slice(0, 3).map(kw => (
+                          <Badge key={kw} variant="outline" className="text-xs bg-green-500/10 text-green-600 border-green-500/20">
+                            {kw}
+                          </Badge>
+                        ))
+                      ) : (
                         <span className="text-xs text-muted-foreground italic">none matched</span>
                       )}
                     </div>
-                    <div className="text-xs text-muted-foreground">
+                    <div className="text-xs text-muted-foreground pt-2 border-t border-border/50">
                       Response time: {result.duration}ms
                     </div>
                   </div>
                 )}
 
                 {result?.error && (
-                  <div className="text-sm text-destructive bg-destructive/10 p-2 rounded">
+                  <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-lg border border-destructive/20">
                     {result.error}
                   </div>
                 )}
@@ -419,11 +421,11 @@ export function AccuracyTest() {
             </motion.div>
           );
         })}
-      </div>
+      </motion.div>
 
       {/* Info Note */}
       <div className="text-center text-sm text-muted-foreground">
-        <Sparkles className="w-4 h-4 inline mr-1" />
+        <Sparkles className="w-4 h-4 inline mr-1.5 text-primary" />
         Tests use real AI calls via Lovable AI Gateway. Results reflect actual production behavior.
       </div>
     </div>

@@ -121,7 +121,6 @@ export function SetupVerification() {
       });
 
       if (error) {
-        // Check if it's a configuration issue vs deployment issue
         if (error.message.includes('not found') || error.message.includes('404')) {
           return {
             status: 'error',
@@ -162,17 +161,14 @@ export function SetupVerification() {
     setIsRunning(true);
     setResults(initialState);
 
-    // Test database
     updateResult('database', { status: 'testing', message: 'Testing connection...' });
     const dbResult = await testDatabase();
     updateResult('database', dbResult);
 
-    // Test edge function
     updateResult('edgeFunction', { status: 'testing', message: 'Testing functions...' });
     const efResult = await testEdgeFunction();
     updateResult('edgeFunction', efResult);
 
-    // Test AI function
     updateResult('aiFunction', { status: 'testing', message: 'Testing AI...' });
     const aiResult = await testAIFunction();
     updateResult('aiFunction', aiResult);
@@ -193,7 +189,7 @@ export function SetupVerification() {
     }
   };
 
-  const getStatusColor = (status: TestResult['status']) => {
+  const getStatusStyles = (status: TestResult['status']) => {
     switch (status) {
       case 'testing':
         return 'border-primary/50 bg-primary/5';
@@ -202,7 +198,7 @@ export function SetupVerification() {
       case 'error':
         return 'border-destructive/50 bg-destructive/5';
       default:
-        return 'border-border bg-muted/30';
+        return 'border-border/50 bg-muted/30';
     }
   };
 
@@ -215,36 +211,36 @@ export function SetupVerification() {
     {
       key: 'database' as const,
       icon: Database,
-      title: 'Database Connection',
-      description: 'Tests connection to your feedback table',
+      title: 'Database',
+      description: 'Connection to feedback table',
     },
     {
       key: 'edgeFunction' as const,
       icon: Zap,
       title: 'Edge Functions',
-      description: 'Verifies backend functions are deployed',
+      description: 'Backend functions deployed',
     },
     {
       key: 'aiFunction' as const,
       icon: Brain,
-      title: 'AI Connectivity',
-      description: 'Tests AI-powered feedback processing',
+      title: 'AI Service',
+      description: 'AI-powered processing',
     },
   ];
 
   return (
-    <Card className="p-6 bg-card/80 backdrop-blur border-border">
+    <Card className="p-6 glass border-border/50 col-span-2">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h3 className="text-lg font-semibold text-foreground">Test My Setup</h3>
           <p className="text-sm text-muted-foreground">
-            Verify all components are working correctly
+            Verify all components are working
           </p>
         </div>
         <Button
           onClick={runAllTests}
           disabled={isRunning}
-          className="gap-2"
+          className="gap-2 shadow-md"
         >
           {isRunning ? (
             <>
@@ -268,19 +264,18 @@ export function SetupVerification() {
           return (
             <motion.div
               key={item.key}
-              className={`p-4 rounded-xl border transition-colors ${getStatusColor(result.status)}`}
-              initial={false}
+              className={`p-4 rounded-xl border transition-all ${getStatusStyles(result.status)}`}
               animate={{ 
                 scale: result.status === 'testing' ? [1, 1.01, 1] : 1 
               }}
               transition={{ duration: 0.3 }}
             >
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-lg bg-background flex items-center justify-center shrink-0">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-xl bg-background flex items-center justify-center shrink-0 shadow-sm">
                   <Icon className="w-5 h-5 text-muted-foreground" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="flex items-center gap-2 mb-0.5">
                     <span className="font-medium text-foreground">{item.title}</span>
                     {getStatusIcon(result.status)}
                   </div>
@@ -291,7 +286,7 @@ export function SetupVerification() {
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
-                        className="mt-2"
+                        className="mt-1.5"
                       >
                         <p className={`text-sm font-medium ${
                           result.status === 'success' ? 'text-green-600' :
@@ -301,7 +296,7 @@ export function SetupVerification() {
                           {result.message}
                         </p>
                         {result.details && (
-                          <p className="text-xs text-muted-foreground mt-0.5">
+                          <p className="text-xs text-muted-foreground mt-0.5 truncate">
                             {result.details}
                           </p>
                         )}
@@ -322,35 +317,29 @@ export function SetupVerification() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className={`mt-6 p-4 rounded-xl ${
+            className={`mt-6 p-4 rounded-xl flex items-center gap-3 ${
               allPassed 
                 ? 'bg-green-500/10 border border-green-500/30' 
                 : 'bg-orange-500/10 border border-orange-500/30'
             }`}
           >
-            <div className="flex items-center gap-3">
-              {allPassed ? (
-                <>
-                  <CheckCircle2 className="w-6 h-6 text-green-500" />
-                  <div>
-                    <p className="font-semibold text-green-600">All Systems Operational</p>
-                    <p className="text-sm text-green-600/80">
-                      Your setup is complete and ready to collect feedback!
-                    </p>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <AlertTriangle className="w-6 h-6 text-orange-500" />
-                  <div>
-                    <p className="font-semibold text-orange-600">Setup Incomplete</p>
-                    <p className="text-sm text-orange-600/80">
-                      Some tests failed. Check the details above for fixes.
-                    </p>
-                  </div>
-                </>
-              )}
-            </div>
+            {allPassed ? (
+              <>
+                <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
+                <div>
+                  <p className="font-medium text-green-600">All Systems Operational</p>
+                  <p className="text-sm text-green-600/80">Ready to collect feedback!</p>
+                </div>
+              </>
+            ) : (
+              <>
+                <AlertTriangle className="w-5 h-5 text-orange-500 shrink-0" />
+                <div>
+                  <p className="font-medium text-orange-600">Setup Incomplete</p>
+                  <p className="text-sm text-orange-600/80">Check the details above.</p>
+                </div>
+              </>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
