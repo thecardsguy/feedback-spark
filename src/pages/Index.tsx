@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { FeedbackWidget } from '@/feedback';
-import { MessageSquare, Zap, Shield, Sparkles, ArrowRight, MousePointer2, CreditCard, Clock, Brain, Copy, Check, Code, Download } from 'lucide-react';
+import { MessageSquare, Zap, Shield, Sparkles, ArrowRight, MousePointer2, CreditCard, Clock, Brain, Copy, Check, Code, Download, Github, ExternalLink, Package } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -348,9 +348,119 @@ const config = createConfig({
         </div>
       </section>
 
-      {/* Implementation Guide */}
-      <section id="implementation" className="border-t border-border bg-background">
+      {/* Get the Template Section */}
+      <section id="implementation" className="border-t border-border bg-gradient-to-b from-background to-primary/5">
         <div className="max-w-6xl mx-auto px-6 py-20">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary mb-4">
+              <Package className="w-4 h-4" />
+              <span className="text-sm font-medium">Get Your Copy</span>
+            </div>
+            <h2 className="text-3xl font-bold text-foreground mb-4">
+              Three Ways to Get Started
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Choose the method that works best for your workflow. All options give you the complete template.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6 mb-16">
+            {/* GitHub Template */}
+            <Card className="p-6 hover:shadow-lg transition-all hover:border-primary/50 group">
+              <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center mb-4 group-hover:bg-primary/10 transition-colors">
+                <Github className="w-6 h-6 text-foreground" />
+              </div>
+              <h3 className="text-xl font-semibold text-card-foreground mb-2">GitHub Template</h3>
+              <p className="text-muted-foreground text-sm mb-4">
+                Click "Use this template" on GitHub to create your own repo with all files and history.
+              </p>
+              <ul className="text-sm text-muted-foreground space-y-2 mb-6">
+                <li className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-green-500" />
+                  Full project structure
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-green-500" />
+                  CI/CD workflow included
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-green-500" />
+                  Database migrations
+                </li>
+              </ul>
+              <Button className="w-full" variant="outline" asChild>
+                <a href="https://github.com/lovableai/feedback-chatbot" target="_blank" rel="noopener noreferrer">
+                  <Github className="w-4 h-4 mr-2" />
+                  Use Template
+                  <ExternalLink className="w-3 h-3 ml-2" />
+                </a>
+              </Button>
+            </Card>
+
+            {/* Lovable Remix */}
+            <Card className="p-6 border-2 border-primary hover:shadow-lg transition-all relative">
+              <div className="absolute -top-3 left-6 px-3 py-1 bg-primary text-primary-foreground text-xs font-medium rounded-full">
+                Recommended
+              </div>
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                <Sparkles className="w-6 h-6 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold text-card-foreground mb-2">Remix in Lovable</h3>
+              <p className="text-muted-foreground text-sm mb-4">
+                One-click copy to your Lovable account. Instantly start customizing with AI.
+              </p>
+              <ul className="text-sm text-muted-foreground space-y-2 mb-6">
+                <li className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-green-500" />
+                  Instant deployment
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-green-500" />
+                  Fresh database included
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-green-500" />
+                  AI-powered editing
+                </li>
+              </ul>
+              <Button className="w-full">
+                <Sparkles className="w-4 h-4 mr-2" />
+                Remix This Project
+              </Button>
+            </Card>
+
+            {/* Download ZIP */}
+            <Card className="p-6 hover:shadow-lg transition-all hover:border-primary/50 group">
+              <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center mb-4 group-hover:bg-primary/10 transition-colors">
+                <Download className="w-6 h-6 text-foreground" />
+              </div>
+              <h3 className="text-xl font-semibold text-card-foreground mb-2">Download ZIP</h3>
+              <p className="text-muted-foreground text-sm mb-4">
+                Download just the feedback module to add to your existing project.
+              </p>
+              <ul className="text-sm text-muted-foreground space-y-2 mb-6">
+                <li className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-green-500" />
+                  Minimal footprint
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-green-500" />
+                  Drop-in components
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-green-500" />
+                  Works anywhere
+                </li>
+              </ul>
+              <Button className="w-full" variant="outline" asChild>
+                <Link to="/demo">
+                  <Download className="w-4 h-4 mr-2" />
+                  Download Module
+                </Link>
+              </Button>
+            </Card>
+          </div>
+
           <SetupGuide />
         </div>
       </section>
