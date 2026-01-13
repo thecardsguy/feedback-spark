@@ -16,10 +16,14 @@ import { createConfig } from '@/feedback/config/feedback.config';
 export function StandardFeedbackWidget() {
   const config = createConfig({
     appName: 'My Application',
-    buttonPosition: 'bottom-right',
-    showSeverity: true,
-    enableScreenshot: true,
-    enableElementPicker: true,
+    position: 'bottom-right',
+    features: {
+      severityLevels: true,
+      screenshotCapture: true,
+      elementPicker: true,
+      categories: true,
+      anonymousSubmission: true,
+    },
   }, 'standard');
 
   return <FeedbackButton config={config} />;
@@ -45,9 +49,12 @@ export function StandardAppSetup() {
 export function AdminDashboardPage() {
   const dashboardConfig = createConfig({
     appName: 'My Application',
-    showStatistics: true,
-    enableStatusManagement: true,
-    enableBulkActions: true,
+    admin: {
+      showStats: true,
+      statusUpdates: true,
+      copyToClipboard: true,
+      exportEnabled: true,
+    },
   }, 'standard');
 
   return (
@@ -81,9 +88,15 @@ export function AppWithRoutes() {
 export function StandardWithCustomSeverity() {
   const config = createConfig({
     appName: 'My App',
-    showSeverity: true,
-    // Severity options are: low, medium, high, critical
-    // These map to different visual styles in the dashboard
+    features: {
+      severityLevels: true,
+      // Severity options are: low, medium, high, critical
+      // These map to different visual styles in the dashboard
+      elementPicker: true,
+      categories: true,
+      anonymousSubmission: true,
+      screenshotCapture: true,
+    },
   }, 'standard');
 
   return <FeedbackButton config={config} />;
@@ -93,8 +106,13 @@ export function StandardWithCustomSeverity() {
 export function StandardWithElementPicker() {
   const config = createConfig({
     appName: 'My App',
-    enableElementPicker: true, // Allow users to click on specific elements
-    enableScreenshot: true,    // Capture screenshot with highlighted element
+    features: {
+      elementPicker: true,    // Allow users to click on specific elements
+      screenshotCapture: true, // Capture screenshot with highlighted element
+      severityLevels: true,
+      categories: true,
+      anonymousSubmission: true,
+    },
   }, 'standard');
 
   return <FeedbackButton config={config} />;

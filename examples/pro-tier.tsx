@@ -16,11 +16,21 @@ import { createConfig } from '@/feedback/config/feedback.config';
 export function ProFeedbackWidget() {
   const config = createConfig({
     appName: 'My AI-Powered App',
-    buttonPosition: 'bottom-right',
-    enableAI: true,
-    showSeverity: true,
-    enableScreenshot: true,
-    enableElementPicker: true,
+    position: 'bottom-right',
+    ai: {
+      enabled: true,
+      provider: 'lovable',
+      summarize: true,
+      categorize: true,
+      generateDevPrompt: true,
+    },
+    features: {
+      severityLevels: true,
+      screenshotCapture: true,
+      elementPicker: true,
+      categories: true,
+      anonymousSubmission: true,
+    },
   }, 'pro');
 
   return <FeedbackButton config={config} />;
@@ -38,9 +48,20 @@ export function ProAppSetup() {
 
   const config = createConfig({
     appName: 'My AI-Powered App',
-    enableAI: true,
-    showSeverity: true,
-    enableScreenshot: true,
+    ai: {
+      enabled: true,
+      provider: 'lovable',
+      summarize: true,
+      categorize: true,
+      generateDevPrompt: true,
+    },
+    features: {
+      severityLevels: true,
+      screenshotCapture: true,
+      elementPicker: true,
+      categories: true,
+      anonymousSubmission: true,
+    },
     onSubmit: handleSubmit,
   }, 'pro');
 
@@ -59,11 +80,19 @@ export function ProAppSetup() {
 export function ProAdminDashboard() {
   const dashboardConfig = createConfig({
     appName: 'My AI-Powered App',
-    enableAI: true,
-    showStatistics: true,
-    enableStatusManagement: true,
-    enableBulkActions: true,
-    enableExport: true, // Export AI prompts for Lovable
+    ai: {
+      enabled: true,
+      provider: 'lovable',
+      summarize: true,
+      categorize: true,
+      generateDevPrompt: true,
+    },
+    admin: {
+      showStats: true,
+      statusUpdates: true,
+      copyToClipboard: true,
+      exportEnabled: true, // Export AI prompts for Lovable
+    },
   }, 'pro');
 
   return (
@@ -109,7 +138,13 @@ export function ProWorkflowExample() {
 
   const config = createConfig({
     appName: 'My App',
-    enableAI: true,
+    ai: {
+      enabled: true,
+      provider: 'lovable',
+      summarize: true,
+      categorize: true,
+      generateDevPrompt: true,
+    },
     onSubmit: (feedback) => {
       // AI-enhanced feedback structure:
       // {

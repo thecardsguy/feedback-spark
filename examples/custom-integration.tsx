@@ -25,8 +25,14 @@ const customCategories: CustomCategory[] = [
 export function CustomCategoriesExample() {
   const config = createConfig({
     appName: 'My SaaS',
-    customCategories,
-    showSeverity: true,
+    categories: customCategories,
+    features: {
+      severityLevels: true,
+      categories: true,
+      elementPicker: true,
+      anonymousSubmission: true,
+      screenshotCapture: true,
+    },
   }, 'standard');
 
   return <FeedbackButton config={config} />;
@@ -36,7 +42,7 @@ export function CustomCategoriesExample() {
 export function CustomStyledButton() {
   const config = createConfig({
     appName: 'My App',
-    buttonPosition: 'bottom-right',
+    position: 'bottom-right',
   }, 'basic');
 
   return (
@@ -74,24 +80,36 @@ export function WithContextEnrichment() {
 export function MultipleWidgets() {
   const bugReportConfig = createConfig({
     appName: 'Bug Report',
-    buttonPosition: 'bottom-right',
-    customCategories: [
+    position: 'bottom-right',
+    categories: [
       { id: 'crash', label: 'App Crash', icon: 'AlertTriangle', color: 'red' },
       { id: 'error', label: 'Error Message', icon: 'XCircle', color: 'orange' },
       { id: 'slow', label: 'Slow Performance', icon: 'Clock', color: 'yellow' },
     ],
-    showSeverity: true,
+    features: {
+      severityLevels: true,
+      categories: true,
+      elementPicker: true,
+      anonymousSubmission: true,
+      screenshotCapture: true,
+    },
   }, 'standard');
 
   const featureRequestConfig = createConfig({
     appName: 'Feature Request',
-    buttonPosition: 'bottom-left',
-    customCategories: [
+    position: 'bottom-left',
+    categories: [
       { id: 'new', label: 'New Feature', icon: 'Sparkles', color: 'blue' },
       { id: 'improve', label: 'Improvement', icon: 'TrendingUp', color: 'green' },
       { id: 'ux', label: 'UX Change', icon: 'Layout', color: 'purple' },
     ],
-    showSeverity: false,
+    features: {
+      severityLevels: false,
+      categories: true,
+      elementPicker: false,
+      anonymousSubmission: true,
+      screenshotCapture: false,
+    },
   }, 'basic');
 
   return (
@@ -106,8 +124,20 @@ export function MultipleWidgets() {
 export function ConditionalFeedback({ user, isPremium }: { user: unknown; isPremium: boolean }) {
   const config = createConfig({
     appName: 'My App',
-    enableAI: isPremium, // Only premium users get AI
-    enableScreenshot: isPremium,
+    ai: {
+      enabled: isPremium, // Only premium users get AI
+      provider: 'lovable',
+      summarize: isPremium,
+      categorize: isPremium,
+      generateDevPrompt: isPremium,
+    },
+    features: {
+      screenshotCapture: isPremium,
+      severityLevels: true,
+      categories: true,
+      elementPicker: true,
+      anonymousSubmission: false,
+    },
     onSubmit: (feedback) => {
       console.log('Feedback from:', user, feedback);
     },
@@ -155,22 +185,37 @@ export function FullCustomConfig() {
     appName: 'My Custom App',
     
     // UI Options
-    buttonPosition: 'bottom-right',
-    showSeverity: true,
-    enableScreenshot: true,
-    enableElementPicker: true,
+    position: 'bottom-right',
+    buttonIcon: 'message',
+    
+    // Feature Toggles
+    features: {
+      severityLevels: true,
+      screenshotCapture: true,
+      elementPicker: true,
+      categories: true,
+      anonymousSubmission: false,
+    },
     
     // AI Settings
-    enableAI: true,
+    ai: {
+      enabled: true,
+      provider: 'lovable',
+      summarize: true,
+      categorize: true,
+      generateDevPrompt: true,
+    },
     
     // Admin Options
-    showStatistics: true,
-    enableStatusManagement: true,
-    enableBulkActions: true,
-    enableExport: true,
+    admin: {
+      showStats: true,
+      statusUpdates: true,
+      copyToClipboard: true,
+      exportEnabled: true,
+    },
     
     // Custom Categories
-    customCategories: [
+    categories: [
       { id: 'urgent', label: 'Urgent', icon: 'AlertCircle', color: 'red' },
       { id: 'question', label: 'Question', icon: 'HelpCircle', color: 'blue' },
       { id: 'praise', label: 'Praise', icon: 'Heart', color: 'pink' },

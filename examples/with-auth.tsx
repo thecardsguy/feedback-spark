@@ -103,13 +103,24 @@ function ProtectedRoute({ children, requireAdmin = false }: { children: ReactNod
 
 // Feedback Widget with User Context
 function AuthenticatedFeedback() {
-  const { user, isAdmin } = useAuth();
+  const { user } = useAuth();
 
   const config = createConfig({
     appName: 'My App',
-    enableAI: true,
-    showSeverity: true,
-    enableScreenshot: true,
+    ai: {
+      enabled: true,
+      provider: 'lovable',
+      summarize: true,
+      categorize: true,
+      generateDevPrompt: true,
+    },
+    features: {
+      severityLevels: true,
+      screenshotCapture: true,
+      elementPicker: true,
+      categories: true,
+      anonymousSubmission: false,
+    },
     onSubmit: (feedback) => {
       // User ID is automatically attached via Supabase RLS
       console.log('Feedback from user:', user?.email, feedback);
@@ -130,11 +141,19 @@ function AdminPage() {
 
   const dashboardConfig = createConfig({
     appName: 'My App',
-    enableAI: true,
-    showStatistics: true,
-    enableStatusManagement: true,
-    enableBulkActions: true,
-    enableExport: true,
+    ai: {
+      enabled: true,
+      provider: 'lovable',
+      summarize: true,
+      categorize: true,
+      generateDevPrompt: true,
+    },
+    admin: {
+      showStats: true,
+      statusUpdates: true,
+      copyToClipboard: true,
+      exportEnabled: true,
+    },
   }, 'pro');
 
   return (

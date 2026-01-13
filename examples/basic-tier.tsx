@@ -73,9 +73,14 @@ import { createConfig } from '@/feedback/config/feedback.config';
 export function BasicFeedbackDirect() {
   const config = createConfig({
     appName: 'My App',
-    buttonPosition: 'bottom-right',
-    showSeverity: false,
-    enableScreenshot: false,
+    position: 'bottom-right',
+    features: {
+      severityLevels: false,
+      screenshotCapture: false,
+      elementPicker: true,
+      categories: true,
+      anonymousSubmission: true,
+    },
   }, 'basic');
 
   return (

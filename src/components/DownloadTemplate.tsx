@@ -491,6 +491,7 @@ export interface FeedbackConfig {
     categories: boolean;
     severityLevels: boolean;
     anonymousSubmission: boolean;
+    screenshotCapture?: boolean;
   };
   ai: {
     enabled: boolean;
@@ -518,6 +519,7 @@ export interface FeedbackSubmission {
   severity?: FeedbackSeverity;
   page_url?: string;
   target_element?: TargetElement;
+  screenshot?: string; // Base64 encoded screenshot
   context?: Record<string, unknown>;
 }
 
@@ -1401,13 +1403,21 @@ const EDGE_FUNCTION_AI = `import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+// IMPORTANT: In production, restrict CORS to your domain:
+// const corsHeaders = { 'Access-Control-Allow-Origin': 'https://yourdomain.com', ... };
 const corsHeaders = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type' };
 
+// Demo responses for testing without AI API key
 const DEMO_RESPONSES = {
   bug: { summary: "User reports a bug that needs investigation.", category: "bug", question: "What specific steps led to this bug?" },
   feature: { summary: "User is requesting a new feature.", category: "feature_request", question: "How would this feature improve the experience?" },
+  ui_ux: { summary: "User has feedback about the UI/UX design.", category: "ui_ux", question: "What specific UI element is causing issues?" },
+  suggestion: { summary: "User has a suggestion for improvement.", category: "suggestion", question: "What problem would this suggestion solve?" },
   other: { summary: "User has provided general feedback.", category: "other", question: "What additional context would help?" },
 };
+
+// NOTE: For rate limiting in production, consider using Supabase Edge Functions with Redis
+// or implement IP-based rate limiting via a reverse proxy (Cloudflare, etc.)
 
 function getDemoResponse(category: string) {
   const response = DEMO_RESPONSES[category as keyof typeof DEMO_RESPONSES] || DEMO_RESPONSES.other;
