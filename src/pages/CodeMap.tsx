@@ -159,16 +159,6 @@ export default function CodeMap() {
             </>
           )}
         </motion.p>
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3, delay: 0.3 }}
-          className="text-sm text-muted-foreground mb-4"
-        >
-          Showing {filteredFiles.length} of {stats.totalFiles} files
-          {selectedCategory !== "all" && ` in ${selectedCategory}`}
-          {searchQuery && ` matching "${searchQuery}"`}
-        </motion.p>
 
         {/* File List */}
         <motion.div

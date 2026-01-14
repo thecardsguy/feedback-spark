@@ -42,89 +42,92 @@ export function TaskCard({ task, isCompleted, onToggleComplete }: TaskCardProps)
         }`}
       >
         <CardContent className="p-4">
-          <div className="flex items-start gap-3">
-            {/* Completion Checkbox */}
-            <button
-              onClick={() => onToggleComplete(task.id)}
-              className={`mt-1 flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
-                isCompleted
-                  ? "bg-green-500 border-green-500 text-white"
-                  : "border-muted-foreground/50 hover:border-primary"
-              }`}
-            >
-              {isCompleted && <Check className="w-3 h-3" />}
-            </button>
-
-            {/* Task Content */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <h3
-                  className={`font-medium text-sm ${
-                    isCompleted ? "text-muted-foreground line-through" : "text-foreground"
-                  }`}
-                >
-                  {task.title}
-                </h3>
-                <Badge variant="outline" className="text-xs">
-                  {task.order}/{4}
-                </Badge>
-              </div>
-              <p className="text-xs text-muted-foreground mb-2">{task.description}</p>
-
-              {/* Expand/Collapse Prompt */}
+          <div className="flex flex-col sm:flex-row sm:items-start gap-3">
+            {/* Checkbox + Content */}
+            <div className="flex items-start gap-3 flex-1">
+              {/* Completion Checkbox */}
               <button
-                onClick={() => setIsExpanded(!isExpanded)}
-                className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors"
+                onClick={() => onToggleComplete(task.id)}
+                className={`mt-1 flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+                  isCompleted
+                    ? "bg-green-500 border-green-500 text-white"
+                    : "border-muted-foreground/50 hover:border-primary"
+                }`}
               >
-                {isExpanded ? (
-                  <>
-                    <ChevronUp className="w-3 h-3" />
-                    Hide prompt
-                  </>
-                ) : (
-                  <>
-                    <ChevronDown className="w-3 h-3" />
-                    Show prompt
-                  </>
-                )}
+                {isCompleted && <Check className="w-3 h-3" />}
               </button>
 
-              {/* Prompt Content */}
-              {isExpanded && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="mt-3"
+              {/* Task Content */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                  <h3
+                    className={`font-medium text-sm ${
+                      isCompleted ? "text-muted-foreground line-through" : "text-foreground"
+                    }`}
+                  >
+                    {task.title}
+                  </h3>
+                  <Badge variant="outline" className="text-xs">
+                    {task.order}/{4}
+                  </Badge>
+                </div>
+                <p className="text-xs text-muted-foreground mb-2">{task.description}</p>
+
+                {/* Expand/Collapse Prompt */}
+                <button
+                  onClick={() => setIsExpanded(!isExpanded)}
+                  className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors"
                 >
-                  <div className="bg-muted/50 rounded-lg p-3 text-xs text-muted-foreground font-mono">
-                    {task.prompt}
-                  </div>
-                </motion.div>
-              )}
+                  {isExpanded ? (
+                    <>
+                      <ChevronUp className="w-3 h-3" />
+                      Hide prompt
+                    </>
+                  ) : (
+                    <>
+                      <ChevronDown className="w-3 h-3" />
+                      Show prompt
+                    </>
+                  )}
+                </button>
+
+                {/* Prompt Content */}
+                {isExpanded && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="mt-3"
+                  >
+                    <div className="bg-muted/50 rounded-lg p-3 text-xs text-muted-foreground font-mono overflow-x-auto">
+                      {task.prompt}
+                    </div>
+                  </motion.div>
+                )}
+              </div>
             </div>
 
-            {/* Actions */}
-            <div className="flex items-center gap-2 flex-shrink-0">
+            {/* Actions - Full width on mobile */}
+            <div className="flex items-center gap-2 w-full sm:w-auto sm:flex-shrink-0 mt-2 sm:mt-0">
               <Button
                 size="sm"
                 variant="outline"
                 onClick={handleCopyPrompt}
-                className="h-8 px-2"
+                className="h-9 px-3 flex-1 sm:flex-none"
               >
                 {isCopied ? (
-                  <Check className="w-3.5 h-3.5 text-green-500" />
+                  <Check className="w-4 h-4 text-green-500" />
                 ) : (
-                  <Copy className="w-3.5 h-3.5" />
+                  <Copy className="w-4 h-4" />
                 )}
               </Button>
               <Button
                 size="sm"
                 variant="default"
                 onClick={handleCopyPrompt}
-                className="h-8 gap-1"
+                className="h-9 gap-1.5 flex-1 sm:flex-none"
               >
-                <Play className="w-3.5 h-3.5" />
+                <Play className="w-4 h-4" />
                 Run
               </Button>
             </div>

@@ -1,17 +1,26 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageSquare, Menu, X } from "lucide-react";
+import { MessageSquare, Menu, X, Sparkles, Download } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/common/ThemeToggle";
 import { cn } from "@/lib/utils";
 
-const navLinks = [
+interface NavLink {
+  href: string;
+  label: string;
+  icon?: LucideIcon;
+}
+
+const navLinks: NavLink[] = [
   { href: "/", label: "Home" },
   { href: "/demo", label: "Demo" },
   { href: "/admin", label: "Admin" },
   { href: "/setup", label: "Setup" },
   { href: "/codemap", label: "Code Map" },
+  { href: "/audit", label: "Audit", icon: Sparkles },
+  { href: "/install", label: "Install", icon: Download },
 ];
 
 export function Navbar() {
@@ -45,12 +54,13 @@ export function Navbar() {
               key={link.href}
               to={link.href}
               className={cn(
-                "px-4 py-2 text-sm font-medium rounded-lg transition-colors",
+                "px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1.5",
                 isActive(link.href)
                   ? "bg-accent text-accent-foreground"
                   : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
               )}
             >
+              {link.icon && <link.icon className="w-3.5 h-3.5 text-primary" />}
               {link.label}
             </Link>
           ))}
@@ -111,12 +121,13 @@ export function Navbar() {
                   to={link.href}
                   onClick={() => setIsOpen(false)}
                   className={cn(
-                    "block px-4 py-3 text-sm font-medium rounded-lg transition-colors",
+                    "flex items-center gap-2 px-4 py-3 text-sm font-medium rounded-lg transition-colors",
                     isActive(link.href)
                       ? "bg-accent text-accent-foreground"
                       : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
                   )}
                 >
+                  {link.icon && <link.icon className="w-4 h-4 text-primary" />}
                   {link.label}
                 </Link>
               ))}

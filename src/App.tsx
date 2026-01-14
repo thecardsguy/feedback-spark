@@ -5,7 +5,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/components/common";
+import { WidgetProvider } from "@/contexts/WidgetContext";
 import { AnimatedRoutes } from "@/components/AnimatedRoutes";
+import { FeedbackWidget } from "@/feedback";
 
 const queryClient = new QueryClient();
 
@@ -13,13 +15,21 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
       <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <AnimatedRoutes />
-          </BrowserRouter>
-        </TooltipProvider>
+        <WidgetProvider initialTier="basic">
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <AnimatedRoutes />
+            </BrowserRouter>
+            {/* Global feedback widget for template improvement */}
+            <FeedbackWidget 
+              appName="Feedback Widget Template"
+              position="bottom-right"
+              enableAI={true}
+            />
+          </TooltipProvider>
+        </WidgetProvider>
       </AuthProvider>
     </ThemeProvider>
   </QueryClientProvider>

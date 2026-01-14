@@ -3,7 +3,6 @@
  * Main entry point showcasing the Feedback Widget template
  */
 
-import { FeedbackWidget } from '@/feedback';
 import { Navbar } from '@/components/common';
 import { AccuracyTest } from '@/components/testing';
 import {
@@ -45,9 +44,6 @@ const Index = () => {
 
       {/* Footer */}
       <Footer />
-
-      {/* Feedback Widget */}
-      <FeedbackWidget />
     </div>
   );
 };

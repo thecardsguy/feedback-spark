@@ -4,6 +4,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 const ALLOWED_ORIGINS = [
   "https://happy-feedback-frame.lovable.app",
   "https://feedback-chatbot.lovable.app",
+  "https://64deeb49-fafe-4473-a4e5-ae7e1dc32b65.lovableproject.com",
   "http://localhost:5173",
   "http://localhost:3000",
 ];

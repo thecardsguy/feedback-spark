@@ -60,6 +60,14 @@ This template turns your feedback collection into an **AI-powered issue tracker*
 - 📸 **Screenshot Capture** — One-click page screenshots attached to feedback
 - 📊 **Export Presets** — Web, Print, and Presentation export profiles
 
+### New in v2.1
+- 🔍 **AI Semantic Code Search** — Natural language search across your codebase
+- ✅ **Implementation Audit** — 28-task interactive checklist with copy-paste prompts
+- ⚡ **Real-time Updates** — Live feedback updates via database subscriptions
+- 🎯 **Optimistic UI** — Instant feedback with automatic rollback on errors
+- 📱 **Enhanced Mobile UX** — Touch-friendly 44px targets, responsive layouts
+- 🎙️ **Voice Search** — Speech-to-text for AI code search (admin only)
+
 ---
 
 ## 🧪 Demo Mode & Setup Wizard

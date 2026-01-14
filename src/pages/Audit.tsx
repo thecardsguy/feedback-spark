@@ -56,24 +56,27 @@ export default function Audit() {
           transition={{ duration: 0.5 }}
           className="mb-8"
         >
-          <div className="flex items-center justify-between">
-            <div>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
                 <Sparkles className="w-6 h-6 text-primary" />
-                <h1 className="text-3xl font-bold text-foreground">Implementation Audit</h1>
+                <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                  Implementation Audit
+                </h1>
               </div>
-              <p className="text-muted-foreground max-w-2xl">
+              <p className="text-sm sm:text-base text-muted-foreground max-w-2xl">
                 Interactive checklist of 28 tasks across 7 phases. Click "Run" to copy a task's 
-                prompt to your clipboard, then paste it into Lovable to implement that feature.
+                prompt to your clipboard, then paste it into Lovable.
               </p>
             </div>
             <Button
               variant="outline"
               onClick={handleReset}
-              className="gap-2"
+              className="gap-2 w-full sm:w-auto"
             >
               <RotateCcw className="w-4 h-4" />
-              Reset Progress
+              <span className="hidden sm:inline">Reset Progress</span>
+              <span className="sm:hidden">Reset</span>
             </Button>
           </div>
         </motion.div>

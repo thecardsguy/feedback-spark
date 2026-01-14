@@ -4,6 +4,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.2'
 const ALLOWED_ORIGINS = [
   'https://happy-feedback-frame.lovable.app',
   'https://feedback-chatbot.lovable.app',
+  'https://64deeb49-fafe-4473-a4e5-ae7e1dc32b65.lovableproject.com',
   'http://localhost:5173',
   'http://localhost:3000',
 ];

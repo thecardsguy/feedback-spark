@@ -64,7 +64,8 @@ export function AISearchBar({
   };
 
   return (
-    <div className="flex flex-col sm:flex-row gap-3">
+    <div className="flex flex-col gap-3">
+      {/* Search Input */}
       <div className="relative flex-1">
         {/* Search Icon / Loading */}
         <div className="absolute left-3 top-1/2 -translate-y-1/2">
@@ -110,8 +111,8 @@ export function AISearchBar({
         )}
       </div>
 
-      {/* Mode Toggle + Search Button */}
-      <div className="flex gap-2">
+      {/* Controls Row - Responsive */}
+      <div className="flex flex-wrap items-center gap-2">
         {isAdmin && (
           <Button
             variant={isAIMode ? "default" : "outline"}
@@ -126,33 +127,41 @@ export function AISearchBar({
             className="gap-1.5"
           >
             <Sparkles className="w-3.5 h-3.5" />
-            {isAIMode ? "AI" : "Basic"}
+            <span className="hidden sm:inline">{isAIMode ? "AI Mode" : "Basic"}</span>
+            <span className="sm:hidden">{isAIMode ? "AI" : "Basic"}</span>
           </Button>
+        )}
+
+        {isAdmin && isAIMode && (
+          <div className="sm:hidden">
+            <VoiceSearchButton onResult={handleVoiceResult} />
+          </div>
         )}
 
         {isAIMode && (
           <Button
             onClick={handleAISearch}
             disabled={!query.trim() || isSearching}
-            className="gap-1.5"
+            className="gap-1.5 flex-1 sm:flex-none"
+            size="sm"
           >
             {isSearching ? (
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
               <Search className="w-4 h-4" />
             )}
-            Search
+            <span className="hidden sm:inline">Search with AI</span>
+            <span className="sm:hidden">Search</span>
           </Button>
         )}
-      </div>
 
-      {/* AI Mode Indicator Badge */}
-      {isAIMode && (
-        <Badge variant="secondary" className="hidden sm:flex items-center gap-1">
-          <Sparkles className="w-3 h-3" />
-          AI-Powered
-        </Badge>
-      )}
+        {isAIMode && (
+          <Badge variant="secondary" className="hidden sm:flex items-center gap-1 ml-auto">
+            <Sparkles className="w-3 h-3" />
+            AI-Powered
+          </Badge>
+        )}
+      </div>
     </div>
   );
 }

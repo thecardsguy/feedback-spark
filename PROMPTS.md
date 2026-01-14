@@ -16,6 +16,7 @@
 | [6](#prompt-6-design-system--styling) | Design System | Modern styling and animations |
 | [7](#prompt-7-verification--testing) | Verification | Test everything works |
 | [8](#prompt-8-bootstrap-first-admin) | Bootstrap Admin | Make yourself an admin |
+| [9](#prompt-9-ai-semantic-code-search) | AI Semantic Code Search | Natural language code search |
 | [🎯](#-master-prompt-all-in-one) | **MASTER PROMPT** | **Complete setup in one prompt** |
 
 ---
@@ -549,6 +550,40 @@ After this, I should be able to:
 - See all feedback in the dashboard
 - Update feedback status
 - Export feedback data
+```
+
+---
+
+## Prompt 9: AI Semantic Code Search
+
+```
+Implement AI-powered semantic code search for the Code Map page:
+
+1. CREATE EDGE FUNCTION (supabase/functions/semantic-code-search/index.ts):
+   - Accept POST with { query: string, files: FileEntry[] }
+   - Use Lovable AI Gateway (google/gemini-2.5-flash model)
+   - Return top 10 files with: { id, relevanceScore (0-100), matchReason }
+   - Include CORS headers for allowed origins
+   - Handle rate limiting gracefully
+
+2. CREATE REACT HOOK (src/hooks/useSemanticSearch.ts):
+   - State: results, isSearching, error
+   - search(query) - calls edge function with file registry
+   - clearResults() - resets state
+   - Map AI results to FileEntry objects
+
+3. CREATE SEARCH BAR (src/components/codemap/AISearchBar.tsx):
+   - Dual-mode: Basic (instant filter) + AI (semantic)
+   - Admin-only AI mode toggle
+   - Debounced basic search (200ms)
+   - Enter key triggers AI search
+   - Voice input via VoiceSearchButton (optional)
+
+4. INTEGRATE INTO CODEMAP (src/pages/CodeMap.tsx):
+   - Show relevance scores as badges
+   - Display AI match reasons
+   - Sparkles icon for AI results
+   - Fallback to basic for non-admins
 ```
 
 ---

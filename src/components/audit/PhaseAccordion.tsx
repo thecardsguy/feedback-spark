@@ -56,16 +56,23 @@ export function PhaseAccordion({
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="text-right">
+          <div className="flex items-center gap-2 sm:gap-4">
+            {/* Desktop: Full stats */}
+            <div className="text-right hidden sm:block">
               <p className="text-sm font-medium text-foreground">
                 {progress.completed}/{progress.total}
               </p>
               <p className="text-xs text-muted-foreground">tasks done</p>
             </div>
-            <div className="w-24">
+            <div className="hidden sm:block w-24">
               <Progress value={progress.percentage} className="h-2" />
             </div>
+            
+            {/* Mobile: Compact badge */}
+            <span className="sm:hidden text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+              {progress.completed}/{progress.total}
+            </span>
+            
             <motion.div
               animate={{ rotate: isOpen ? 180 : 0 }}
               transition={{ duration: 0.2 }}

@@ -1,12 +1,15 @@
 /**
- * Feedback Widget Template - Data Hooks
+ * Feedback Widget Template - Enhanced Data Hooks
  * 
- * Provides hooks for fetching, submitting, and managing feedback.
- * Works with Supabase.
+ * Features:
+ * - Real-time subscriptions for live updates
+ * - Optimistic updates with automatic rollback
+ * - Retry logic with exponential backoff
  */
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import type { RealtimeChannel } from '@supabase/supabase-js';
 import type {
   FeedbackItem,
   FeedbackSubmission,
@@ -18,6 +21,38 @@ import type {
 } from '../types/feedback';
 
 // ============================================
+// UTILITIES
+// ============================================
+
+const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function withRetry<T>(
+  fn: () => Promise<T>,
+  maxRetries = 3,
+  baseDelay = 1000
+): Promise<T> {
+  let lastError: Error;
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+      if (i < maxRetries - 1) {
+        await wait(baseDelay * Math.pow(2, i));
+      }
+    }
+  }
+  throw lastError!;
+}
+
+function getDeviceType(): 'mobile' | 'tablet' | 'desktop' {
+  const width = window.innerWidth;
+  if (width < 768) return 'mobile';
+  if (width < 1024) return 'tablet';
+  return 'desktop';
+}
+
+// ============================================
 // CONFIGURATION
 // ============================================
 
@@ -25,6 +60,7 @@ interface FeedbackHookConfig {
   tableName?: string;
   aiEnabled?: boolean;
   userId?: string;
+  enableRealtime?: boolean;
 }
 
 // ============================================
@@ -32,13 +68,14 @@ interface FeedbackHookConfig {
 // ============================================
 
 export function useFeedback(hookConfig: FeedbackHookConfig = {}): UseFeedbackReturn {
-  const { tableName = 'feedback', aiEnabled = false, userId } = hookConfig;
+  const { aiEnabled = false, userId, enableRealtime = true } = hookConfig;
   
   const [items, setItems] = useState<FeedbackItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const channelRef = useRef<RealtimeChannel | null>(null);
 
-  // Fetch feedback items
+  // Fetch with retry
   const fetchItems = useCallback(async () => {
     setIsLoading(true);
     setError(null);
@@ -56,61 +93,123 @@ export function useFeedback(hookConfig: FeedbackHookConfig = {}): UseFeedbackRet
     } finally {
       setIsLoading(false);
     }
-  }, [tableName]);
+  }, []);
 
+  // Real-time subscription
   useEffect(() => {
     fetchItems();
-  }, [fetchItems]);
 
-  // Submit new feedback
-  const submit = useCallback(async (data: FeedbackSubmission): Promise<FeedbackItem> => {
-    // Determine which edge function to use
-    const functionName = aiEnabled ? 'submit-feedback-ai' : 'submit-feedback';
+    if (enableRealtime) {
+      channelRef.current = supabase
+        .channel('feedback-realtime')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'feedback' },
+          (payload) => {
+            if (payload.eventType === 'INSERT') {
+              const newItem = payload.new as unknown as FeedbackItem;
+              // Don't add if it's a temp item we already have (optimistic update)
+              setItems(prev => {
+                const hasTemp = prev.some(i => i.id.startsWith('temp-'));
+                if (hasTemp) {
+                  return [newItem, ...prev.filter(i => !i.id.startsWith('temp-'))];
+                }
+                // Check if already exists
+                if (prev.some(i => i.id === newItem.id)) {
+                  return prev;
+                }
+                return [newItem, ...prev];
+              });
+            } else if (payload.eventType === 'UPDATE') {
+              const updated = payload.new as unknown as FeedbackItem;
+              setItems(prev => prev.map(i => i.id === updated.id ? updated : i));
+            } else if (payload.eventType === 'DELETE') {
+              const deletedId = (payload.old as any).id;
+              setItems(prev => prev.filter(i => i.id !== deletedId));
+            }
+          }
+        )
+        .subscribe();
+    }
 
-    const { data: result, error: submitError } = await supabase.functions.invoke(
-      functionName,
-      {
-        body: {
-          ...data,
-          user_id: userId,
-          page_url: data.page_url || window.location.href,
-          device_type: getDeviceType(),
-        },
+    return () => {
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
       }
-    );
+    };
+  }, [fetchItems, enableRealtime]);
 
-    if (submitError) throw submitError;
+  // Optimistic submit
+  const submit = useCallback(async (data: FeedbackSubmission): Promise<FeedbackItem> => {
+    const optimisticId = `temp-${Date.now()}`;
+    const optimisticItem: FeedbackItem = {
+      id: optimisticId,
+      raw_text: data.raw_text,
+      category: data.category || 'other',
+      severity: data.severity || 'medium',
+      status: 'pending',
+      page_url: data.page_url || window.location.href,
+      device_type: getDeviceType(),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
 
-    // Refresh the list to get the full item
-    await fetchItems();
-    
-    return result as FeedbackItem;
-  }, [aiEnabled, userId, fetchItems]);
+    // Optimistically add
+    setItems(prev => [optimisticItem, ...prev]);
 
-  // Update feedback status
+    try {
+      const functionName = aiEnabled ? 'submit-feedback-ai' : 'submit-feedback';
+      const { data: result, error: submitError } = await withRetry(() =>
+        supabase.functions.invoke(functionName, {
+          body: {
+            ...data,
+            user_id: userId,
+            page_url: data.page_url || window.location.href,
+            device_type: getDeviceType(),
+          },
+        })
+      );
+
+      if (submitError) throw submitError;
+
+      // If realtime is enabled, the real item will come through the subscription
+      // Otherwise, refresh to get the real item
+      if (!enableRealtime) {
+        await fetchItems();
+      }
+      
+      return result as FeedbackItem;
+    } catch (err) {
+      // Rollback optimistic update
+      setItems(prev => prev.filter(i => i.id !== optimisticId));
+      throw err;
+    }
+  }, [aiEnabled, userId, fetchItems, enableRealtime]);
+
+  // Optimistic status update
   const updateStatus = useCallback(async (id: string, status: FeedbackStatus): Promise<void> => {
-    const { error: updateError } = await supabase
-      .from('feedback')
-      .update({ status, updated_at: new Date().toISOString() } as any)
-      .eq('id', id);
+    const previousItems = [...items];
+    
+    // Optimistic update
+    setItems(prev => prev.map(i =>
+      i.id === id ? { ...i, status, updated_at: new Date().toISOString() } : i
+    ));
 
-    if (updateError) throw updateError;
+    try {
+      const { error: updateError } = await supabase
+        .from('feedback')
+        .update({ status, updated_at: new Date().toISOString() } as any)
+        .eq('id', id);
 
-    setItems(prev =>
-      prev.map(item =>
-        item.id === id ? { ...item, status, updated_at: new Date().toISOString() } : item
-      )
-    );
-  }, [tableName]);
+      if (updateError) throw updateError;
+    } catch (err) {
+      // Rollback on error
+      setItems(previousItems);
+      throw err;
+    }
+  }, [items]);
 
-  return {
-    items,
-    isLoading,
-    error,
-    submit,
-    updateStatus,
-    refresh: fetchItems,
-  };
+  return { items, isLoading, error, submit, updateStatus, refresh: fetchItems };
 }
 
 // ============================================
@@ -218,17 +317,6 @@ export function useFeedbackFilters(items: FeedbackItem[]) {
     setSearch,
     clearFilters,
   };
-}
-
-// ============================================
-// UTILITIES
-// ============================================
-
-function getDeviceType(): 'mobile' | 'tablet' | 'desktop' {
-  const width = window.innerWidth;
-  if (width < 768) return 'mobile';
-  if (width < 1024) return 'tablet';
-  return 'desktop';
 }
 
 // ============================================
