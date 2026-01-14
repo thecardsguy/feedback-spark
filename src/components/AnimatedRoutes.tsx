@@ -8,6 +8,7 @@ import Login from "@/pages/Login";
 import Signup from "@/pages/Signup";
 import ClientDemo from "@/pages/ClientDemo";
 import Install from "@/pages/Install";
+import CodeMap from "@/pages/CodeMap";
 import NotFound from "@/pages/NotFound";
 
 export function AnimatedRoutes() {
@@ -69,6 +70,14 @@ export function AnimatedRoutes() {
           element={
             <PageTransition>
               <Install />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/codemap"
+          element={
+            <PageTransition>
+              <CodeMap />
             </PageTransition>
           }
         />

@@ -11,6 +11,7 @@ const navLinks = [
   { href: "/demo", label: "Demo" },
   { href: "/admin", label: "Admin" },
   { href: "/setup", label: "Setup" },
+  { href: "/codemap", label: "Code Map" },
 ];
 
 export function Navbar() {
