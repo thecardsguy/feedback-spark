@@ -17,6 +17,9 @@ interface UseAdminReturn {
   error: string | null;
 }
 
+// SECURITY: Timeout protection to prevent hanging
+const ADMIN_CHECK_TIMEOUT = 10000; // 10 seconds
+
 export function useAdmin(): UseAdminReturn {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -25,6 +28,7 @@ export function useAdmin(): UseAdminReturn {
 
   useEffect(() => {
     let mounted = true;
+    let timeoutId: ReturnType<typeof setTimeout>;
 
     async function checkAdmin() {
       try {
@@ -43,9 +47,24 @@ export function useAdmin(): UseAdminReturn {
           setUserId(session.user.id);
         }
 
+        // SECURITY: Create a timeout promise to prevent hanging
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          timeoutId = setTimeout(() => {
+            reject(new Error('Admin check timed out'));
+          }, ADMIN_CHECK_TIMEOUT);
+        });
+
         // SECURITY: Use the is_admin() database function for secure server-side check
         // This function runs with SECURITY DEFINER and checks the admin_users table
-        const { data, error: adminError } = await supabase.rpc('is_admin');
+        // Race against timeout to prevent slow network attacks
+        const adminCheckPromise = supabase.rpc('is_admin');
+        
+        const { data, error: adminError } = await Promise.race([
+          adminCheckPromise,
+          timeoutPromise
+        ]) as Awaited<typeof adminCheckPromise>;
+
+        clearTimeout(timeoutId);
 
         if (mounted) {
           if (adminError) {
@@ -61,10 +80,12 @@ export function useAdmin(): UseAdminReturn {
         }
       } catch (err) {
         if (mounted) {
-          // SECURITY: On error, deny access - never allow by default
+          // SECURITY: On error or timeout, deny access - never allow by default
           console.error('Admin check error:', err);
           setIsAdmin(false);
-          setError('Unable to verify admin status');
+          setError(err instanceof Error && err.message.includes('timed out') 
+            ? 'Admin verification timed out' 
+            : 'Unable to verify admin status');
           setIsLoading(false);
         }
       }
@@ -79,6 +100,7 @@ export function useAdmin(): UseAdminReturn {
 
     return () => {
       mounted = false;
+      clearTimeout(timeoutId);
       subscription.unsubscribe();
     };
   }, []);
