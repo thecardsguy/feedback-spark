@@ -18,9 +18,12 @@ interface NavLink {
   icon?: LucideIcon;
 }
 
-const navLinks: NavLink[] = [
+const publicNavLinks: NavLink[] = [
   { href: "/", label: "Home" },
   { href: "/demo", label: "Demo" },
+];
+
+const adminNavLinks: NavLink[] = [
   { href: "/admin", label: "Admin" },
   { href: "/setup", label: "Setup" },
   { href: "/codemap", label: "Code Map" },
@@ -37,6 +40,11 @@ export function Navbar() {
   // Only show notifications for admins
   const { notifications, unreadCount, isConnected, markAsRead, markAllAsRead } = 
     useRealtimeNotifications(!!user && isAdmin);
+
+  // Combine nav links based on admin status
+  const navLinks = user && isAdmin 
+    ? [...publicNavLinks, ...adminNavLinks] 
+    : publicNavLinks;
 
   const isActive = (href: string) => {
     if (href === "/") {

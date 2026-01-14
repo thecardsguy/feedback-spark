@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, XCircle, Loader2, Database, Bot, ArrowRight, RefreshCw, Zap, Play } from 'lucide-react';
 import { Navbar } from '@/components/common';
+import { AdminGuard } from '@/components/auth';
 
 interface HealthStatus {
   database: { ok: boolean; message: string };
@@ -65,6 +66,9 @@ const Setup = () => {
           category: 'other',
           severity: 'low',
           page_url: window.location.href,
+          submitter_name: 'Setup Test User',
+          submitter_email: 'test@example.com',
+          submitter_phone: '',
         }),
       });
       const data = await response.json();
@@ -105,7 +109,10 @@ const Setup = () => {
           category: 'ui_ux',
           severity: 'medium',
           page_url: window.location.href,
-          demo_mode: true, // Request demo mode to avoid using credits
+          demo_mode: true,
+          submitter_name: 'Setup Test User',
+          submitter_email: 'test@example.com',
+          submitter_phone: '',
         }),
       });
       const data = await response.json();
@@ -146,8 +153,9 @@ const Setup = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
+    <AdminGuard>
+      <div className="min-h-screen bg-background">
+        <Navbar />
       
       <div className="container-custom py-12">
         <div className="max-w-2xl mx-auto">
@@ -337,9 +345,10 @@ const Setup = () => {
               </Link>
             </div>
           </div>
+          </div>
         </div>
       </div>
-    </div>
+    </AdminGuard>
   );
 };
 

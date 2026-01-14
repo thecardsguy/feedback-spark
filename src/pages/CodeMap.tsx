@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
 import { FileCode, Layers, BarChart3, Sparkles } from "lucide-react";
 import { Navbar } from "@/components/common";
+import { AdminGuard } from "@/components/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CategoryFilter, AISearchBar, FileCard } from "@/components/codemap";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -55,8 +56,9 @@ export default function CodeMap() {
   }, [semanticSearch]);
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
+    <AdminGuard>
+      <div className="min-h-screen bg-background">
+        <Navbar />
 
       <main className="container-custom py-8">
         {/* Header */}
@@ -233,8 +235,9 @@ export default function CodeMap() {
               </button>
             ))}
           </div>
-        </motion.div>
-      </main>
-    </div>
+          </motion.div>
+        </main>
+      </div>
+    </AdminGuard>
   );
 }

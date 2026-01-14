@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Sparkles, RotateCcw } from "lucide-react";
 import { Navbar } from "@/components/common";
+import { AdminGuard } from "@/components/auth";
 import { Button } from "@/components/ui/button";
 import { AuditOverview, PhaseAccordion } from "@/components/audit";
 import { auditPhases } from "@/lib/auditTasks";
@@ -45,8 +46,9 @@ export default function Audit() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
+    <AdminGuard>
+      <div className="min-h-screen bg-background">
+        <Navbar />
 
       <main className="container-custom py-8">
         {/* Header */}
@@ -124,7 +126,8 @@ export default function Audit() {
             </p>
           </motion.div>
         )}
-      </main>
-    </div>
+        </main>
+      </div>
+    </AdminGuard>
   );
 }
