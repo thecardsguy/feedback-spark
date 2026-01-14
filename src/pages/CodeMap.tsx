@@ -1,11 +1,11 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Search, FileCode, Layers, BarChart3 } from "lucide-react";
+import { FileCode, Layers, BarChart3, Sparkles } from "lucide-react";
 import { Navbar } from "@/components/common";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CategoryFilter } from "@/components/codemap/CategoryFilter";
-import { FileCard } from "@/components/codemap/FileCard";
+import { CategoryFilter, AISearchBar, FileCard } from "@/components/codemap";
+import { useAdmin } from "@/hooks/useAdmin";
+import { useSemanticSearch, SemanticSearchResult } from "@/hooks/useSemanticSearch";
 import {
   fileRegistry,
   FileCategory,
@@ -17,6 +17,9 @@ import {
 export default function CodeMap() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<FileCategory | "all">("all");
+  const { isAdmin } = useAdmin();
+  const { search: semanticSearch, results: aiResults, isSearching, clearResults } = useSemanticSearch();
+  const [isAISearchActive, setIsAISearchActive] = useState(false);
 
   const stats = useMemo(() => getStats(), []);
 
@@ -38,6 +41,18 @@ export default function CodeMap() {
 
     return files;
   }, [searchQuery, selectedCategory]);
+
+  const handleBasicSearch = useCallback((query: string) => {
+    setSearchQuery(query);
+    setIsAISearchActive(false);
+    clearResults();
+  }, [clearResults]);
+
+  const handleAISearch = useCallback((query: string) => {
+    setIsAISearchActive(true);
+    setSearchQuery("");
+    semanticSearch(query);
+  }, [semanticSearch]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -110,18 +125,14 @@ export default function CodeMap() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="flex flex-col sm:flex-row gap-4 mb-6"
+          className="flex flex-col gap-4 mb-6"
         >
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Search files by name, path, or description..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div>
+          <AISearchBar
+            onBasicSearch={handleBasicSearch}
+            onAISearch={handleAISearch}
+            isSearching={isSearching}
+            isAdmin={isAdmin}
+          />
           <CategoryFilter
             selectedCategory={selectedCategory}
             onCategoryChange={setSelectedCategory}
@@ -129,6 +140,25 @@ export default function CodeMap() {
         </motion.div>
 
         {/* Results count */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3, delay: 0.3 }}
+          className="text-sm text-muted-foreground mb-4 flex items-center gap-2"
+        >
+          {isAISearchActive && aiResults.length > 0 ? (
+            <>
+              <Sparkles className="w-4 h-4 text-primary" />
+              Found {aiResults.length} AI-matched files
+            </>
+          ) : (
+            <>
+              Showing {filteredFiles.length} of {stats.totalFiles} files
+              {selectedCategory !== "all" && ` in ${selectedCategory}`}
+              {searchQuery && ` matching "${searchQuery}"`}
+            </>
+          )}
+        </motion.p>
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -147,7 +177,28 @@ export default function CodeMap() {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="space-y-3"
         >
-          {filteredFiles.length > 0 ? (
+          {isAISearchActive && aiResults.length > 0 ? (
+            // AI Search Results with scores
+            aiResults.map((result, index) => (
+              <motion.div
+                key={result.file.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2, delay: index * 0.02 }}
+              >
+                <div className="relative">
+                  <div className="absolute -left-2 top-2 z-10 flex items-center gap-1 bg-primary/10 text-primary text-xs font-medium px-2 py-1 rounded-full border border-primary/20">
+                    <Sparkles className="w-3 h-3" />
+                    {result.relevanceScore}%
+                  </div>
+                  <FileCard file={result.file} />
+                  <p className="mt-1 ml-4 text-xs text-muted-foreground italic">
+                    ✨ {result.matchReason}
+                  </p>
+                </div>
+              </motion.div>
+            ))
+          ) : filteredFiles.length > 0 ? (
             filteredFiles.map((file, index) => (
               <motion.div
                 key={file.id}

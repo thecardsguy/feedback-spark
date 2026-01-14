@@ -9,6 +9,7 @@ import Signup from "@/pages/Signup";
 import ClientDemo from "@/pages/ClientDemo";
 import Install from "@/pages/Install";
 import CodeMap from "@/pages/CodeMap";
+import Audit from "@/pages/Audit";
 import NotFound from "@/pages/NotFound";
 
 export function AnimatedRoutes() {
@@ -78,6 +79,14 @@ export function AnimatedRoutes() {
           element={
             <PageTransition>
               <CodeMap />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/audit"
+          element={
+            <PageTransition>
+              <Audit />
             </PageTransition>
           }
         />
