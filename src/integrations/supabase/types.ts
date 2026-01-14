@@ -86,35 +86,6 @@ export type Database = {
         }
         Relationships: []
       }
-      notification_reads: {
-        Row: {
-          feedback_id: string
-          id: string
-          read_at: string | null
-          user_id: string
-        }
-        Insert: {
-          feedback_id: string
-          id?: string
-          read_at?: string | null
-          user_id: string
-        }
-        Update: {
-          feedback_id?: string
-          id?: string
-          read_at?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "notification_reads_feedback_id_fkey"
-            columns: ["feedback_id"]
-            isOneToOne: false
-            referencedRelation: "feedback"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
     }
     Views: {
       [_ in never]: never
