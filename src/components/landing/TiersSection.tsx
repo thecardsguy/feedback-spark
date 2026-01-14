@@ -7,7 +7,7 @@ import { motion, Variants } from 'framer-motion';
 import { MessageSquare, Zap, Shield } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import TierComparison from '@/components/TierComparison';
+import { TierComparison } from '@/components/tiers';
 
 interface TierCard {
   icon: typeof MessageSquare;

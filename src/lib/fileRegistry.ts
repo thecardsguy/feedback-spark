@@ -14,6 +14,7 @@ export type FileCategory =
   | "components-download"
   | "components-auth"
   | "components-testing"
+  | "components-codemap"
   | "components-ui"
   | "hooks"
   | "contexts"
@@ -45,8 +46,8 @@ export const fileRegistry: FileEntry[] = [
     path: "src/pages/Index.tsx",
     category: "pages",
     description: "Landing page with hero, features, tiers, and download options",
-    lines: 494,
-    imports: ["Navbar", "TierComparison", "DownloadTemplate", "AccuracyTest", "FeedbackButton"],
+    lines: 55,
+    imports: ["Navbar", "TierComparison", "DownloadTemplate", "AccuracyTest", "FeedbackButton", "HeroSection", "QuickStartSection", "FeaturesGrid", "TiersSection", "GetTemplateSection", "Footer"],
     usedBy: ["AnimatedRoutes"],
   },
   {
@@ -119,6 +120,16 @@ export const fileRegistry: FileEntry[] = [
     imports: [],
     usedBy: ["AnimatedRoutes"],
   },
+  {
+    id: "page-codemap",
+    name: "CodeMap.tsx",
+    path: "src/pages/CodeMap.tsx",
+    category: "pages",
+    description: "Visual file browser with search and category filters",
+    lines: 199,
+    imports: ["Navbar", "CategoryFilter", "FileCard", "fileRegistry"],
+    usedBy: ["AnimatedRoutes"],
+  },
 
   // ============================================
   // COMMON COMPONENTS
@@ -129,18 +140,18 @@ export const fileRegistry: FileEntry[] = [
     path: "src/components/common/Navbar.tsx",
     category: "components-common",
     description: "Global navigation header with responsive mobile menu",
-    lines: 128,
+    lines: 131,
     imports: ["ThemeToggle", "Button"],
-    usedBy: ["Index", "Admin", "Setup", "ClientDemo", "Install"],
+    usedBy: ["Index", "Admin", "Setup", "ClientDemo", "Install", "CodeMap"],
   },
   {
     id: "comp-theme-toggle",
     name: "ThemeToggle.tsx",
     path: "src/components/common/ThemeToggle.tsx",
     category: "components-common",
-    description: "Dark/light mode toggle button",
-    lines: 35,
-    imports: ["Button"],
+    description: "Dark/light mode toggle button with sun/moon icons",
+    lines: 85,
+    imports: ["Button", "DropdownMenu"],
     usedBy: ["Navbar"],
   },
   {
@@ -159,8 +170,8 @@ export const fileRegistry: FileEntry[] = [
     path: "src/components/common/PageTransition.tsx",
     category: "components-common",
     description: "Animated page transition wrapper using framer-motion",
-    lines: 30,
-    imports: [],
+    lines: 44,
+    imports: ["framer-motion"],
     usedBy: ["AnimatedRoutes"],
   },
   {
@@ -223,7 +234,7 @@ export const fileRegistry: FileEntry[] = [
     path: "src/components/landing/TiersSection.tsx",
     category: "components-landing",
     description: "Pricing tiers section with TierComparison",
-    lines: 90,
+    lines: 108,
     imports: ["TierComparison", "Badge", "framer-motion"],
     usedBy: ["Index"],
   },
@@ -389,7 +400,7 @@ export const fileRegistry: FileEntry[] = [
     path: "src/components/auth/OnboardingModal.tsx",
     category: "components-auth",
     description: "Welcome modal for first-time users",
-    lines: 167,
+    lines: 169,
     imports: ["Dialog"],
     usedBy: ["Setup"],
   },
@@ -420,12 +431,80 @@ export const fileRegistry: FileEntry[] = [
   {
     id: "tier-comparison",
     name: "TierComparison.tsx",
-    path: "src/components/TierComparison.tsx",
+    path: "src/components/tiers/TierComparison.tsx",
     category: "components-tiers",
     description: "Feature comparison table with PDF/image export",
     lines: 434,
-    imports: ["Card", "Dialog", "html2canvas", "jspdf"],
+    imports: ["Card", "Dialog", "vendorScripts"],
+    usedBy: ["TiersSection"],
+  },
+  {
+    id: "tiers-index",
+    name: "index.ts",
+    path: "src/components/tiers/index.ts",
+    category: "components-tiers",
+    description: "Re-exports for tier comparison components",
+    lines: 6,
+    imports: [],
+    usedBy: ["TiersSection"],
+  },
+
+  // ============================================
+  // TESTING COMPONENTS
+  // ============================================
+  {
+    id: "accuracy-test",
+    name: "AccuracyTest.tsx",
+    path: "src/components/testing/AccuracyTest.tsx",
+    category: "components-testing",
+    description: "AI categorization accuracy testing tool with real API calls",
+    lines: 435,
+    imports: ["Card", "Button", "Badge", "Progress", "framer-motion"],
     usedBy: ["Index"],
+  },
+  {
+    id: "testing-index",
+    name: "index.ts",
+    path: "src/components/testing/index.ts",
+    category: "components-testing",
+    description: "Re-exports for testing components",
+    lines: 6,
+    imports: [],
+    usedBy: ["Index"],
+  },
+
+  // ============================================
+  // CODEMAP COMPONENTS
+  // ============================================
+  {
+    id: "codemap-filter",
+    name: "CategoryFilter.tsx",
+    path: "src/components/codemap/CategoryFilter.tsx",
+    category: "components-codemap",
+    description: "Category dropdown filter for Code Map",
+    lines: 39,
+    imports: ["Select", "fileRegistry"],
+    usedBy: ["CodeMap"],
+  },
+  {
+    id: "codemap-card",
+    name: "FileCard.tsx",
+    path: "src/components/codemap/FileCard.tsx",
+    category: "components-codemap",
+    description: "File entry card with expandable metadata display",
+    lines: 128,
+    imports: ["Card", "Badge", "framer-motion"],
+    usedBy: ["CodeMap"],
+  },
+  {
+    id: "codemap-index",
+    name: "index.ts",
+    path: "src/components/codemap/index.ts",
+    category: "components-codemap",
+    description: "Re-exports for code map components",
+    lines: 7,
+    imports: [],
+    usedBy: ["CodeMap"],
   },
 
   // ============================================
@@ -437,67 +516,93 @@ export const fileRegistry: FileEntry[] = [
     path: "src/components/DownloadTemplate.tsx",
     category: "components-download",
     description: "ZIP template generator with all feedback widget files",
-    lines: 1631,
-    imports: ["Button", "jszip"],
+    lines: 438,
+    imports: ["Button", "jszip", "template files"],
     usedBy: ["Index", "SetupGuide"],
   },
 
   // ============================================
-  // CODEMAP COMPONENTS
+  // DOWNLOAD TEMPLATE FILES
   // ============================================
   {
-    id: "codemap-page",
-    name: "CodeMap.tsx",
-    path: "src/pages/CodeMap.tsx",
-    category: "pages",
-    description: "Visual file browser with search and category filters",
-    lines: 199,
-    imports: ["Navbar", "CategoryFilter", "FileCard", "fileRegistry"],
-    usedBy: ["AnimatedRoutes"],
-  },
-  {
-    id: "codemap-filter",
-    name: "CategoryFilter.tsx",
-    path: "src/components/codemap/CategoryFilter.tsx",
-    category: "components-common",
-    description: "Category dropdown filter for Code Map",
-    lines: 60,
-    imports: ["Select", "fileRegistry"],
-    usedBy: ["CodeMap"],
-  },
-  {
-    id: "codemap-card",
-    name: "FileCard.tsx",
-    path: "src/components/codemap/FileCard.tsx",
-    category: "components-common",
-    description: "File entry card with metadata display",
-    lines: 80,
-    imports: ["Card", "Badge", "fileRegistry"],
-    usedBy: ["CodeMap"],
-  },
-  {
-    id: "lib-fileregistry",
-    name: "fileRegistry.ts",
-    path: "src/lib/fileRegistry.ts",
-    category: "lib",
-    description: "Metadata registry for all project files",
-    lines: 750,
+    id: "template-types",
+    name: "types.template.ts",
+    path: "src/components/download/templates/types.template.ts",
+    category: "components-download",
+    description: "Template string for TypeScript type definitions",
+    lines: 148,
     imports: [],
-    usedBy: ["CodeMap", "CategoryFilter", "FileCard"],
+    usedBy: ["DownloadTemplate"],
   },
-
-  // ============================================
-  // TESTING COMPONENTS
-  // ============================================
   {
-    id: "accuracy-test",
-    name: "AccuracyTest.tsx",
-    path: "src/components/AccuracyTest.tsx",
-    category: "components-testing",
-    description: "AI categorization accuracy testing tool",
-    lines: 200,
-    imports: ["Card", "Button", "supabase"],
-    usedBy: ["Index"],
+    id: "template-config",
+    name: "config.template.ts",
+    path: "src/components/download/templates/config.template.ts",
+    category: "components-download",
+    description: "Template string for configuration presets",
+    lines: 68,
+    imports: [],
+    usedBy: ["DownloadTemplate"],
+  },
+  {
+    id: "template-hooks",
+    name: "hooks.template.ts",
+    path: "src/components/download/templates/hooks.template.ts",
+    category: "components-download",
+    description: "Template string for React hooks (useFeedback, useFeedbackStats)",
+    lines: 127,
+    imports: [],
+    usedBy: ["DownloadTemplate"],
+  },
+  {
+    id: "template-user-components",
+    name: "user-components.template.ts",
+    path: "src/components/download/templates/user-components.template.ts",
+    category: "components-download",
+    description: "Template strings for FeedbackButton, FeedbackForm, ElementPicker",
+    lines: 296,
+    imports: [],
+    usedBy: ["DownloadTemplate"],
+  },
+  {
+    id: "template-admin-components",
+    name: "admin-components.template.ts",
+    path: "src/components/download/templates/admin-components.template.ts",
+    category: "components-download",
+    description: "Template strings for admin dashboard components",
+    lines: 224,
+    imports: [],
+    usedBy: ["DownloadTemplate"],
+  },
+  {
+    id: "template-edge-functions",
+    name: "edge-functions.template.ts",
+    path: "src/components/download/templates/edge-functions.template.ts",
+    category: "components-download",
+    description: "Template strings for Supabase Edge Functions",
+    lines: 135,
+    imports: [],
+    usedBy: ["DownloadTemplate"],
+  },
+  {
+    id: "template-misc",
+    name: "misc.template.ts",
+    path: "src/components/download/templates/misc.template.ts",
+    category: "components-download",
+    description: "Template strings for SQL, index, QuickStart, and README",
+    lines: 213,
+    imports: [],
+    usedBy: ["DownloadTemplate"],
+  },
+  {
+    id: "template-index",
+    name: "index.ts",
+    path: "src/components/download/templates/index.ts",
+    category: "components-download",
+    description: "Re-exports all template constants",
+    lines: 29,
+    imports: [],
+    usedBy: ["DownloadTemplate"],
   },
 
   // ============================================
@@ -581,6 +686,16 @@ export const fileRegistry: FileEntry[] = [
     imports: [],
     usedBy: ["TierComparison"],
   },
+  {
+    id: "lib-fileregistry",
+    name: "fileRegistry.ts",
+    path: "src/lib/fileRegistry.ts",
+    category: "lib",
+    description: "Metadata registry for all project files with helper functions",
+    lines: 920,
+    imports: [],
+    usedBy: ["CodeMap", "CategoryFilter", "FileCard"],
+  },
 
   // ============================================
   // INTEGRATIONS
@@ -636,8 +751,8 @@ export const fileRegistry: FileEntry[] = [
     category: "edge-functions",
     description: "AI-powered feedback submission with categorization",
     lines: 150,
-    imports: ["supabase-js", "openai"],
-    usedBy: ["useFeedback"],
+    imports: ["supabase-js", "Lovable AI"],
+    usedBy: ["useFeedback", "AccuracyTest"],
   },
 
   // ============================================
@@ -793,6 +908,7 @@ export const getCategoryLabel = (category: FileCategory): string => {
     "components-download": "Download Template",
     "components-auth": "Authentication",
     "components-testing": "Testing",
+    "components-codemap": "Code Map",
     "components-ui": "UI Components",
     hooks: "Hooks",
     contexts: "Contexts",
@@ -818,6 +934,7 @@ export const getCategoryColor = (category: FileCategory): string => {
     "components-download": "bg-red-500/20 text-red-400 border-red-500/30",
     "components-auth": "bg-indigo-500/20 text-indigo-400 border-indigo-500/30",
     "components-testing": "bg-teal-500/20 text-teal-400 border-teal-500/30",
+    "components-codemap": "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
     "components-ui": "bg-slate-500/20 text-slate-400 border-slate-500/30",
     hooks: "bg-violet-500/20 text-violet-400 border-violet-500/30",
     contexts: "bg-fuchsia-500/20 text-fuchsia-400 border-fuchsia-500/30",
