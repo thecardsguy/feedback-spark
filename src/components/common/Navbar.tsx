@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageSquare, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "./ThemeToggle";
+import { ThemeToggle } from "@/components/common/ThemeToggle";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
@@ -127,3 +127,5 @@ export function Navbar() {
     </header>
   );
 }
+
+export default Navbar;
