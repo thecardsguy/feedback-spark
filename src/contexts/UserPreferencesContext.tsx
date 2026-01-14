@@ -56,10 +56,16 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// Safe hook that returns defaults if provider is not mounted
 export function usePreferences() {
   const context = useContext(UserPreferencesContext);
   if (context === undefined) {
-    throw new Error("usePreferences must be used within a UserPreferencesProvider");
+    // Return safe defaults when outside provider
+    return {
+      preferences: defaultPreferences,
+      setSoundEnabled: () => {},
+      setVolume: () => {},
+    };
   }
   return context;
 }
