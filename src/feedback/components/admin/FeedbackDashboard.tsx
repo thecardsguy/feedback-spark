@@ -214,7 +214,7 @@ export function FeedbackDashboard({ config }: FeedbackDashboardProps) {
   const hasActiveFilters = filters.category || filters.severity || filters.status || filters.search;
 
   return (
-    <div style={styles.container}>
+    <div style={styles.container} className="px-3 sm:px-6">
       {/* Header */}
       <div style={styles.header}>
         <div>
@@ -340,10 +340,10 @@ export function FeedbackDashboard({ config }: FeedbackDashboardProps) {
         )}
       </div>
 
-      {/* Main content */}
-      <div style={styles.content}>
+      {/* Main content - Mobile responsive grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 min-h-[400px]">
         {/* Feedback list */}
-        <div style={styles.listPane}>
+        <div className="overflow-auto max-h-[400px] md:max-h-[600px]">
           {activeTab === 'ai-enhanced' && displayItems.length === 0 ? (
             <div style={styles.emptyState}>
               <Icons.Sparkles />
@@ -366,7 +366,7 @@ export function FeedbackDashboard({ config }: FeedbackDashboardProps) {
 
         {/* Detail pane */}
         {selectedItem && (
-          <div style={styles.detailPane}>
+          <div className="md:sticky md:top-6 md:self-start">
             <FeedbackDetail
               item={selectedItem}
               config={config}
@@ -389,7 +389,7 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     flexDirection: 'column',
     gap: 24,
-    padding: 24,
+    padding: '16px',
     maxWidth: 1400,
     margin: '0 auto',
   },
