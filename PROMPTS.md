@@ -17,6 +17,7 @@
 | [7](#prompt-7-verification--testing) | Verification | Test everything works |
 | [8](#prompt-8-bootstrap-first-admin) | Bootstrap Admin | Make yourself an admin |
 | [9](#prompt-9-ai-semantic-code-search) | AI Semantic Code Search | Natural language code search |
+| [10](#prompt-10-in-app-notification-system) | In-App Notifications | Real-time notification center |
 | [🎯](#-master-prompt-all-in-one) | **MASTER PROMPT** | **Complete setup in one prompt** |
 
 ---
@@ -584,6 +585,90 @@ Implement AI-powered semantic code search for the Code Map page:
    - Display AI match reasons
    - Sparkles icon for AI results
    - Fallback to basic for non-admins
+```
+
+---
+
+## Prompt 10: In-App Notification System
+
+```
+Implement a real-time in-app notification system for feedback:
+
+1. USER PREFERENCES CONTEXT (src/contexts/UserPreferencesContext.tsx):
+   - soundNotificationsEnabled: boolean (default true)
+   - notificationVolume: number (0-100, default 50)
+   - Persist to localStorage under "feedback-widget-preferences"
+   - Provide usePreferences() hook
+
+2. NOTIFICATION SOUND HOOK (src/hooks/useNotificationSound.ts):
+   - Use Web Audio API to generate bell-like sound
+   - playSound() - plays if enabled, with debounce (1s)
+   - playTestSound() - plays regardless of debounce
+   - Respect user volume preference
+
+3. REALTIME NOTIFICATIONS HOOK (src/hooks/useRealtimeNotifications.ts):
+   - Subscribe to feedback table INSERT events via Supabase realtime
+   - Track last 20 notifications with read/unread state
+   - Play sound for critical/high severity feedback
+   - Show toast notification for new feedback
+   - Mark as read/unread functionality
+   - Mark all as read functionality
+
+4. NOTIFICATION CENTER COMPONENT (src/components/common/NotificationCenter.tsx):
+   - Dropdown triggered by bell icon in navbar
+   - Show unread count badge (max "99+")
+   - Connection status indicator (green = connected)
+   - List of recent notifications with:
+     - Category icon with color
+     - Severity badge (critical = red, high = orange)
+     - Truncated text preview
+     - Relative time ("2 min ago")
+     - Quick action: "View in Admin"
+   - "Mark all read" button
+   - Empty state with inbox icon
+   - Footer link to admin dashboard
+
+5. SOUND TOGGLE COMPONENT (src/components/common/SoundToggle.tsx):
+   - Speaker icon (on) / Speaker-off icon (muted)
+   - Tooltip with current state
+   - Plays test sound when enabling
+   - Persists preference to localStorage
+
+6. NAVBAR INTEGRATION (src/components/common/Navbar.tsx):
+   - Add bell icon with unread badge (admin only)
+   - Add sound toggle (admin only)
+   - Show notification dropdown on click
+
+7. APP PROVIDER SETUP (src/App.tsx):
+   - Wrap with UserPreferencesProvider
+   - Place after AuthProvider for proper context access
+
+8. DATABASE TABLE (if not exists):
+   CREATE TABLE public.notification_reads (
+     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+     user_id UUID NOT NULL,
+     feedback_id UUID NOT NULL REFERENCES feedback(id) ON DELETE CASCADE,
+     read_at TIMESTAMPTZ DEFAULT now(),
+     UNIQUE(user_id, feedback_id)
+   );
+   
+   ALTER TABLE notification_reads ENABLE ROW LEVEL SECURITY;
+   
+   CREATE POLICY "Users can manage own reads"
+     ON notification_reads FOR ALL
+     USING (user_id = auth.uid())
+     WITH CHECK (user_id = auth.uid());
+   
+   -- Enable realtime on feedback table
+   ALTER PUBLICATION supabase_realtime ADD TABLE feedback;
+
+RESULT:
+- Admins see bell icon with unread count
+- Real-time updates when new feedback arrives
+- Sound plays for critical/high severity
+- Notifications can be marked as read
+- Preferences persist across sessions
+- No external API keys required
 ```
 
 ---

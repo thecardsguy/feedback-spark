@@ -6,6 +6,7 @@ import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/components/common";
 import { WidgetProvider } from "@/contexts/WidgetContext";
+import { UserPreferencesProvider } from "@/contexts/UserPreferencesContext";
 import { AnimatedRoutes } from "@/components/AnimatedRoutes";
 import { FeedbackWidget } from "@/feedback";
 
@@ -15,21 +16,23 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
       <AuthProvider>
-        <WidgetProvider initialTier="basic">
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <AnimatedRoutes />
-            </BrowserRouter>
-            {/* Global feedback widget for template improvement */}
-            <FeedbackWidget 
-              appName="Feedback Widget Template"
-              position="bottom-right"
-              enableAI={true}
-            />
-          </TooltipProvider>
-        </WidgetProvider>
+        <UserPreferencesProvider>
+          <WidgetProvider initialTier="basic">
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <AnimatedRoutes />
+              </BrowserRouter>
+              {/* Global feedback widget for template improvement */}
+              <FeedbackWidget 
+                appName="Feedback Widget Template"
+                position="bottom-right"
+                enableAI={true}
+              />
+            </TooltipProvider>
+          </WidgetProvider>
+        </UserPreferencesProvider>
       </AuthProvider>
     </ThemeProvider>
   </QueryClientProvider>

@@ -5,7 +5,12 @@ import { MessageSquare, Menu, X, Sparkles, Download } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/common/ThemeToggle";
+import { NotificationCenter } from "@/components/common/NotificationCenter";
+import { SoundToggle } from "@/components/common/SoundToggle";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
+import { useAdmin } from "@/hooks/useAdmin";
+import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
 
 interface NavLink {
   href: string;
@@ -26,6 +31,12 @@ const navLinks: NavLink[] = [
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const { user } = useAuth();
+  const { isAdmin } = useAdmin();
+  
+  // Only show notifications for admins
+  const { notifications, unreadCount, isConnected, markAsRead, markAllAsRead } = 
+    useRealtimeNotifications(!!user && isAdmin);
 
   const isActive = (href: string) => {
     if (href === "/") {
@@ -67,7 +78,21 @@ export function Navbar() {
         </div>
 
         {/* Right Section */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
+          {/* Admin-only notifications */}
+          {user && isAdmin && (
+            <>
+              <SoundToggle />
+              <NotificationCenter
+                notifications={notifications}
+                unreadCount={unreadCount}
+                isConnected={isConnected}
+                onMarkAsRead={markAsRead}
+                onMarkAllAsRead={markAllAsRead}
+              />
+            </>
+          )}
+          
           <ThemeToggle />
 
           {/* Mobile Menu Button */}
