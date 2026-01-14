@@ -164,6 +164,32 @@ export function FeedbackDetail({ item, config, onStatusChange, onClose }: Feedba
         )}
       </div>
 
+      {/* Submitter Contact Info */}
+      {(item.submitter_name || item.submitter_email) && (
+        <Section title="Submitter Info">
+          <div style={styles.contactInfo}>
+            {item.submitter_name && (
+              <div style={styles.contactRow}>
+                <span style={styles.contactLabel}>Name:</span>
+                <span style={styles.contactValue}>{item.submitter_name}</span>
+              </div>
+            )}
+            {item.submitter_email && (
+              <div style={styles.contactRow}>
+                <span style={styles.contactLabel}>Email:</span>
+                <a href={`mailto:${item.submitter_email}`} style={styles.link}>{item.submitter_email}</a>
+              </div>
+            )}
+            {item.submitter_phone && (
+              <div style={styles.contactRow}>
+                <span style={styles.contactLabel}>Phone:</span>
+                <a href={`tel:${item.submitter_phone}`} style={styles.link}>{item.submitter_phone}</a>
+              </div>
+            )}
+          </div>
+        </Section>
+      )}
+
       {/* Original Feedback */}
       <Section title="Original Feedback">
         <div style={styles.feedbackText}>{item.raw_text}</div>
@@ -292,6 +318,30 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 14,
     color: '#2563eb',
     textDecoration: 'none',
+  },
+  contactInfo: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 8,
+    padding: 12,
+    backgroundColor: '#f0f9ff',
+    borderRadius: 8,
+    borderLeft: '3px solid #3b82f6',
+  },
+  contactRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+  },
+  contactLabel: {
+    fontSize: 13,
+    fontWeight: 500,
+    color: '#374151',
+    minWidth: 60,
+  },
+  contactValue: {
+    fontSize: 14,
+    color: '#1f2937',
   },
   section: {
     display: 'flex',

@@ -144,6 +144,13 @@ export function FeedbackForm({ config, onSubmit, onCancel, isSubmitting }: Feedb
   const [isPickingElement, setIsPickingElement] = useState(false);
   const [screenshot, setScreenshot] = useState<string | null>(null);
   const [isCapturing, setIsCapturing] = useState(false);
+  
+  // Contact fields
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
+  
   const isDarkMode = useIsDarkMode();
   const theme = getTheme(isDarkMode);
 
@@ -176,9 +183,28 @@ export function FeedbackForm({ config, onSubmit, onCancel, isSubmitting }: Feedb
     }
   };
 
+  const validateContact = (): boolean => {
+    const newErrors: typeof errors = {};
+    
+    if (!name.trim()) {
+      newErrors.name = 'Name is required';
+    }
+    
+    if (!email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = 'Invalid email format';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!text.trim()) return;
+    
+    if (!validateContact()) return;
 
     const submission: FeedbackSubmission = {
       raw_text: text.trim(),
@@ -187,6 +213,9 @@ export function FeedbackForm({ config, onSubmit, onCancel, isSubmitting }: Feedb
       target_element: targetElement || undefined,
       screenshot: screenshot || undefined,
       page_url: window.location.href,
+      submitter_name: name.trim(),
+      submitter_email: email.trim(),
+      submitter_phone: phone.trim() || undefined,
     };
 
     await onSubmit(submission);
@@ -217,6 +246,51 @@ export function FeedbackForm({ config, onSubmit, onCancel, isSubmitting }: Feedb
             <Icons.X />
           </button>
         </div>
+
+        {/* Contact Fields */}
+        <motion.div 
+          style={styles.section}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.02 }}
+        >
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <label style={styles.label}>Name *</label>
+              <input
+                type="text"
+                value={name}
+                onChange={e => { setName(e.target.value); setErrors(prev => ({ ...prev, name: undefined })); }}
+                placeholder="Your name"
+                style={{ ...styles.input, borderColor: errors.name ? '#ef4444' : theme.border }}
+                required
+              />
+              {errors.name && <span style={styles.errorText}>{errors.name}</span>}
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <label style={styles.label}>Email *</label>
+              <input
+                type="email"
+                value={email}
+                onChange={e => { setEmail(e.target.value); setErrors(prev => ({ ...prev, email: undefined })); }}
+                placeholder="your@email.com"
+                style={{ ...styles.input, borderColor: errors.email ? '#ef4444' : theme.border }}
+                required
+              />
+              {errors.email && <span style={styles.errorText}>{errors.email}</span>}
+            </div>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 8 }}>
+            <label style={styles.label}>Phone <span style={{ fontWeight: 400, color: theme.textMuted }}>(optional)</span></label>
+            <input
+              type="tel"
+              value={phone}
+              onChange={e => setPhone(e.target.value)}
+              placeholder="+1 (555) 123-4567"
+              style={styles.input}
+            />
+          </div>
+        </motion.div>
 
         {/* Category selector */}
         {config.features.categories && (
@@ -561,6 +635,23 @@ const getStyles = (theme: ReturnType<typeof getTheme>): Record<string, React.CSS
     backgroundColor: theme.bgSecondary,
     color: theme.text,
     boxSizing: 'border-box',
+  },
+  input: {
+    width: '100%',
+    padding: '10px 12px',
+    border: `1px solid ${theme.border}`,
+    borderRadius: 8,
+    fontSize: 14,
+    fontFamily: 'inherit',
+    outline: 'none',
+    backgroundColor: theme.bgSecondary,
+    color: theme.text,
+    boxSizing: 'border-box',
+  },
+  errorText: {
+    fontSize: 11,
+    color: '#ef4444',
+    marginTop: 2,
   },
   pickElementButton: {
     display: 'flex',

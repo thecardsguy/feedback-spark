@@ -101,8 +101,18 @@ Deno.serve(async (req) => {
 
     const payload = await req.json()
     
+    // Validate required fields
     if (!payload.raw_text || payload.raw_text.length < 5) {
       return new Response(JSON.stringify({ error: 'Feedback text is required (min 5 chars)' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+    }
+    
+    // Validate contact fields
+    if (!payload.submitter_name || payload.submitter_name.trim().length === 0) {
+      return new Response(JSON.stringify({ error: 'Name is required' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+    }
+    
+    if (!payload.submitter_email || !payload.submitter_email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+      return new Response(JSON.stringify({ error: 'Valid email is required' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
     }
 
     const supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
@@ -123,6 +133,9 @@ Deno.serve(async (req) => {
         target_element: payload.target_element,
         device_type: payload.device_type,
         status: 'pending',
+        submitter_name: payload.submitter_name.trim().slice(0, 200),
+        submitter_email: payload.submitter_email.trim().toLowerCase().slice(0, 320),
+        submitter_phone: payload.submitter_phone?.trim().slice(0, 30) || null,
         context,
       })
       .select('id, created_at')

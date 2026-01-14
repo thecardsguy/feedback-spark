@@ -46,6 +46,9 @@ export type Database = {
           raw_text: string
           severity: string | null
           status: string | null
+          submitter_email: string | null
+          submitter_name: string | null
+          submitter_phone: string | null
           target_element: Json | null
           updated_at: string | null
           user_id: string | null
@@ -63,6 +66,9 @@ export type Database = {
           raw_text: string
           severity?: string | null
           status?: string | null
+          submitter_email?: string | null
+          submitter_name?: string | null
+          submitter_phone?: string | null
           target_element?: Json | null
           updated_at?: string | null
           user_id?: string | null
@@ -80,6 +86,9 @@ export type Database = {
           raw_text?: string
           severity?: string | null
           status?: string | null
+          submitter_email?: string | null
+          submitter_name?: string | null
+          submitter_phone?: string | null
           target_element?: Json | null
           updated_at?: string | null
           user_id?: string | null

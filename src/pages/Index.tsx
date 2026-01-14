@@ -7,7 +7,6 @@ import { Navbar } from '@/components/common';
 import { AccuracyTest } from '@/components/testing';
 import {
   HeroSection,
-  QuickStartSection,
   FeaturesGrid,
   TiersSection,
   GetTemplateSection,
@@ -21,9 +20,6 @@ const Index = () => {
       
       {/* Hero Section */}
       <HeroSection />
-
-      {/* Quick Start Section */}
-      <QuickStartSection />
 
       {/* AI Accuracy Section */}
       <section className="relative overflow-hidden">

@@ -44,6 +44,11 @@ export interface FeedbackItem {
   ai_category?: FeedbackCategory;
   ai_question_for_dev?: string;
   
+  // User contact information
+  submitter_name?: string;
+  submitter_email?: string;
+  submitter_phone?: string;
+  
   // Metadata
   device_type?: DeviceType;
   context?: Record<string, unknown>;
@@ -119,6 +124,10 @@ export interface FeedbackSubmission {
   target_element?: TargetElement;
   screenshot?: string; // Base64 encoded screenshot
   context?: Record<string, unknown>;
+  // User contact information
+  submitter_name?: string;
+  submitter_email?: string;
+  submitter_phone?: string;
 }
 
 // ============================================

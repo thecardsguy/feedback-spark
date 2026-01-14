@@ -34,7 +34,10 @@ interface FeedbackPayload {
   page_url?: string;
   target_element?: Record<string, unknown>;
   device_type?: string;
-  demo_mode?: boolean; // New: Request demo mode for testing
+  demo_mode?: boolean;
+  submitter_name?: string;
+  submitter_email?: string;
+  submitter_phone?: string;
 }
 
 interface AIEnhancement {
@@ -116,6 +119,20 @@ function validatePayload(payload: unknown): { valid: boolean; data?: FeedbackPay
     return { valid: false, error: `Feedback text exceeds maximum length of ${MAX_TEXT_LENGTH} characters` };
   }
 
+  // Validate required contact fields
+  if (!p.submitter_name || typeof p.submitter_name !== 'string' || p.submitter_name.trim().length === 0) {
+    return { valid: false, error: 'Name is required' };
+  }
+
+  if (!p.submitter_email || typeof p.submitter_email !== 'string') {
+    return { valid: false, error: 'Email is required' };
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(p.submitter_email)) {
+    return { valid: false, error: 'Invalid email format' };
+  }
+
   const validCategories = ['bug', 'feature', 'improvement', 'question', 'other', 'ui_ux', 'suggestion'];
   const validSeverities = ['low', 'medium', 'high', 'critical'];
 
@@ -129,6 +146,9 @@ function validatePayload(payload: unknown): { valid: boolean; data?: FeedbackPay
       target_element: typeof p.target_element === 'object' ? p.target_element as Record<string, unknown> : undefined,
       device_type: typeof p.device_type === 'string' ? p.device_type.slice(0, 50) : undefined,
       demo_mode: p.demo_mode === true,
+      submitter_name: (p.submitter_name as string).trim().slice(0, 200),
+      submitter_email: (p.submitter_email as string).trim().toLowerCase().slice(0, 320),
+      submitter_phone: typeof p.submitter_phone === 'string' ? p.submitter_phone.trim().slice(0, 30) : undefined,
     },
   };
 }
@@ -357,6 +377,9 @@ serve(async (req) => {
         target_element: feedbackData.target_element,
         device_type: feedbackData.device_type,
         user_id: userId,
+        submitter_name: feedbackData.submitter_name,
+        submitter_email: feedbackData.submitter_email,
+        submitter_phone: feedbackData.submitter_phone || null,
         context,
         status: 'pending',
         ...aiEnhancement,

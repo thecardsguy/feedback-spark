@@ -1,8 +1,10 @@
 import { FeedbackDashboard } from '@/feedback';
 import { STANDARD_PRESET } from '@/feedback/config/feedback.config';
-import { Shield } from 'lucide-react';
+import { Shield, Code } from 'lucide-react';
 import { AdminGuard } from '@/components/auth';
 import { Navbar } from '@/components/common';
+import { AdminChatbot } from '@/components/admin/AdminChatbot';
+import { QuickStartSection } from '@/components/landing';
 
 const Admin = () => {
   return (
@@ -27,7 +29,24 @@ const Admin = () => {
         {/* Dashboard */}
         <main className="container-custom py-8">
           <FeedbackDashboard config={STANDARD_PRESET} />
+          
+          {/* Integration Reference for Admins */}
+          <div className="mt-16 pt-8 border-t border-border/50">
+            <div className="flex items-center gap-2 mb-6">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Code className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-foreground">Integration Reference</h2>
+                <p className="text-sm text-muted-foreground">Code examples for integrating the widget</p>
+              </div>
+            </div>
+            <QuickStartSection />
+          </div>
         </main>
+
+        {/* AI Chatbot */}
+        <AdminChatbot />
       </div>
     </AdminGuard>
   );
